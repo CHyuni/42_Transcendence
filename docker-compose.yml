@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  django:
+    build: ./django
+    container_name: django
+    networks:
+      - transcendence
+    volumes:
+      - django_vol:/home
+    ports:
+        - "8000:8000"
+        
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    networks:
+      - transcendence
+    volumes:
+        - nginx_conf:/etc/nginx/conf.d
+        - static_vol:/home/staticfiles
+    ports:
+      - "8080:80"
+
+networks:
+  transcendence:
+    name: tsen
+    driver: bridge
+    
+volumes:
+  django_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/changhyu/goinfre/changhyu/django/django_vol
+
+  nginx_conf:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/changhyu/goinfre/changhyu/nginx/nginx_conf
+
+  static_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/changhyu/goinfre/changhyu/django/django_vol/staticfiles
