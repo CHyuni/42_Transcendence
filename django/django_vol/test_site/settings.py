@@ -25,10 +25,12 @@ SECRET_KEY = 'django-insecure-75*dh@hau$*z$=$v2y&43+mwz!818azja355j3%%!1dj!rbx=+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.228.235.11']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://10.12.9.1:8080',
+	'http://211.228.235.11:8080',
+	'http://localhost:8080',
 ]
 
 # Application definition
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'oauth2_provider',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +85,8 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 
+CLIENT_ID = env('CLIENT_ID')
+CLIENT_SECRET = env('CLIENT_SECRET')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -137,3 +142,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+OAUTH2_PROVIDER = {
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 600,  # 토큰 만료 시간 (초)
+    'OAUTH2_VALIDATOR_CLASS': 'oauth2_provider.oauth2_validators.OAuth2Validator',
+}
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = 3600

@@ -9,6 +9,7 @@ services:
       - transcendence
     volumes:
       - django_vol:/home
+      - root_vol:/st
     ports:
         - "8000:8000"
         
@@ -50,32 +51,32 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/django/django_vol
+      device: /home/changhyun/tsen/django/django_vol
 
   nginx_conf:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/nginx/nginx_conf
+      device: /home/changhyun/tsen/nginx/nginx_conf
 
   static_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/django/django_vol/staticfiles
+      device: /home/changhyun/tsen/django/django_vol/staticfiles
 
   postgres_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/postgre/postgres_vol
+      device: /home/changhyun/tsen/postgre/postgres_vol
 
   root_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu
+      device: /home/changhyun/tsen
