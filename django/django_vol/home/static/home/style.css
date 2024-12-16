@@ -1,0 +1,42 @@
+.jersey-15-regular {
+	font-family: "Jersey 15", serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+#content {
+    display: flex;
+    flex-direction: column; /* 세로로 배치 */
+    justify-content: flex-start; /* 세로로 위쪽으로 정렬 */
+    align-items: center; /* 가로로 가운데 정렬 */
+    height: 100vh; /* 화면 높이를 100% 차지 */
+    padding-top: 0px; /* 상단 여백을 추가하여 위로 올림 */
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* 페이지 전체 높이를 차지 */
+	overflow: hidden;
+}
+
+body {
+    background-image: url('/static/home/images/background.gif');
+    background-size: cover; /* 화면에 꽉 차게 */
+    background-repeat: no-repeat; /* 반복 방지 */
+    background-position: center; /* 중앙 정렬 */
+}
+
+.headline {
+	color:rgb(159, 161, 161);
+	font-size: 200px;
+	text-align: center;
+	font-family: "Jersey 15", serif;
+}
+
+.btn {
+    padding: 10px 20px; /* 버튼 크기 조정 */
+    font-size: 16px; /* 버튼 텍스트 크기 */
+    cursor: pointer;
+	margin-top: -150px;
+}
