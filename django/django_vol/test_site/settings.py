@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'oauth2_provider',
+    'rest_framework',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +78,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'test_site.wsgi.application'
+
+ASGI_APPLICATION = 'test_site.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 
 # Database
@@ -154,3 +167,12 @@ OAUTH2_PROVIDER = {
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 3600
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}

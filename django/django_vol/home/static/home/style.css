@@ -40,3 +40,29 @@ body {
     cursor: pointer;
 	margin-top: -150px;
 }
+
+.user-item {
+    padding: 5px;
+    margin-bottom: 10px;              /* 각 아이템 간의 여백 */
+    background-color: #e0e0e0;       /* 각 아이템 배경 색상 */
+    border: 1px solid #ccc;          /* 테두리 */
+    border-radius: 10px;             /* 아이템 끝 둥글게 처리 */
+    font-size: 16px;                  /* 폰트 크기 */
+    font-weight: bold;                /* 폰트 굵기 */
+}
+
+#user-list {
+    width: 10%;                    /* 가로 크기 100% */
+    min-height: 100px;               /* 최소 높이 설정 */
+    max-height: 300px;               /* 최대 높이 설정 */
+    overflow-y: auto;                /* 세로 스크롤 활성화 */
+    padding: 20px;                   /* 내부 여백 */
+    background-color: #f4f4f4;       /* 배경 색상 */
+    border-radius: 20px;             /* 둥근 사각형으로 만들기 */
+    box-sizing: border-box;          /* padding 포함하여 크기 계산 */
+    display: flex;
+    flex-direction: column;          /* 세로로 나열 */
+    position: absolute;  /* absolute로 위치를 자유롭게 조정 */
+    top: 400px;  /* 화면 상단에서 20px 위치 */
+    right: 100px;
+}

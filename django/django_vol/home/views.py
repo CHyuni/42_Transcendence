@@ -1,4 +1,5 @@
 import requests
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
@@ -24,7 +25,7 @@ def oauth_callback(request):
 	token_url = 'https://api.intra.42.fr/oauth/token'
 	client_id = settings.CLIENT_ID
 	client_secret = settings.CLIENT_SECRET
-	redirect_uri = 'http://localhost:8080/callback/'
+	redirect_uri = 'http://10.12.9.1:8080/callback/'
 
 	data = {
 		'grant_type': 'authorization_code',
@@ -76,4 +77,7 @@ def oauth_callback(request):
 		
 	else:
 		return JsonResponse({'error': 'Failed to get access token'}, status=400)
-		
+
+def logout_view(request):
+	logout(request)
+	return JsonResponse({'message': 'Logged out successfully'})

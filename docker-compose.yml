@@ -40,6 +40,14 @@ services:
     ports:
      - "5432:5432"
 
+  redis:
+    image: redis:7.4.1-alpine3.20
+    container_name: redis
+    networks:
+      - transcendence
+    ports:
+      - "6380:6379"
+
 networks:
   transcendence:
     name: tsen
@@ -51,32 +59,32 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyun/tsen/django/django_vol
+      device: /home/changhyu/goinfre/changhyu/django/django_vol
 
   nginx_conf:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyun/tsen/nginx/nginx_conf
+      device: /home/changhyu/goinfre/changhyu/nginx/nginx_conf
 
   static_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyun/tsen/django/django_vol/staticfiles
+      device: /home/changhyu/goinfre/changhyu/django/django_vol/staticfiles
 
   postgres_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyun/tsen/postgre/postgres_vol
+      device: /home/changhyu/goinfre/changhyu/postgre/postgres_vol
 
   root_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyun/tsen
+      device: /home/changhyu/goinfre/changhyu

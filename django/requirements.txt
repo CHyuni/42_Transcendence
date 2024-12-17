@@ -3,3 +3,5 @@ uvicorn
 psycopg2-binary
 django-environ
 django-oauth-toolkit
+djangorestframework
+channels
