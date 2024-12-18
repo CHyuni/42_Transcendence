@@ -5,3 +5,5 @@ django-environ
 django-oauth-toolkit
 djangorestframework
 channels
+websockets
+channels_redis

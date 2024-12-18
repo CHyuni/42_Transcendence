@@ -66,3 +66,116 @@ body {
     top: 400px;  /* 화면 상단에서 20px 위치 */
     right: 100px;
 }
+
+#chat-modal {
+    display: none;
+    position: fixed;
+    width: 350px;
+    height: 600px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    flex-direction: column;
+    position: absolute;  /* absolute로 위치를 자유롭게 조정 */
+    top: 20px;  /* 화면 상단에서 20px 위치 */
+    left: 400px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-header .back-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-header .username {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: bold;
+}
+
+.chat-header .options-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-header .header-buttons {
+    display: flex;
+    align-items: center;
+}
+
+#chat-header .close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#chat-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    clear: both;
+    word-wrap: break-word;
+}
+
+.sent-message {
+    background-color: #ffeb33; /* 카카오톡 노란 메시지 */
+    float: right;
+    text-align: right;
+}
+
+.received-message {
+    background-color: white;
+    float: left;
+    text-align: left;
+    border: 1px solid #e0e0e0;
+}
+
+.chat-input-container {
+    display: flex;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-top: 1px solid #e0e0e0;
+}
+
+#chat-box {
+    flex-grow: 1;
+    resize: none;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+    height: 40px;
+}
+
+.send-btn {
+    background-color: #ffeb33;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}

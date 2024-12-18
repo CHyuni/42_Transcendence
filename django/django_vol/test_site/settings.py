@@ -37,7 +37,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
     'home',
-    'polls.apps.PollsConfig',
+    'api',
+    'chat',
+    'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

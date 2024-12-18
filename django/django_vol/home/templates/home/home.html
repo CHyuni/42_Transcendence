@@ -12,6 +12,25 @@
 	<body>
 		<div id="content"></div>
 		<div id="user-list"></div>
+		<div id="chat-modal" class="modal">
+			<div class="chat-header">
+				<button class="back-btn" onclick="closeChatModal()">←</button>
+				<div class="username">대화 상대 이름</div>
+				<button class="options-btn">⋮</button>
+				<button id="close-btn">×</button>
+			</div>
+			<div id="chat-content">
+				<div class="message received-message">안녕하세요!</div>
+				<div class="message sent-message">반갑습니다.</div>
+				<div class="message received-message">오늘 어떤 일 있으셨어요?</div>
+				<div class="message sent-message">특별한 일은 없었어요.</div>
+			</div>
+			<div class="chat-input-container">
+				<textarea id="chat-box" rows="1" placeholder="메시지를 입력하세요"></textarea>
+				<button class="send-btn">➤</button>
+			</div>
+		</div>
+		<script src="{% static '/chat/js/chat.js' %}"></script>
 		<script src="{% static '/home/js/home.js' %}"></script>
 	</body>
-</html>
+</html>	

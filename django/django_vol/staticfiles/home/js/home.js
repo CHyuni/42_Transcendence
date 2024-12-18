@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
 	const contentDiv = document.getElementById('content');
 	const userListDiv = document.getElementById('user-list');
-	console.log(userListDiv);
+	const modal = document.getElementById('chat-modal');
+    const modalBackground = document.getElementById('modal-background');
+    const closeButton = document.getElementById('close-btn');
 
 	fetch('/api/check-login-status/')
 		.then(response => {
@@ -79,9 +81,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 			// 버튼 클릭 시의 동작 추가
 			userButton.addEventListener('click', () => {
-				alert(`${user}를 선택했습니다.`);  // 버튼 클릭 시 알림
+				window.ChatManager.openChatModal(user);
 			});
-	
 			userDiv.appendChild(userButton);
 			userListDiv.appendChild(userDiv);
 		});

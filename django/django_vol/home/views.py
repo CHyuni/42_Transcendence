@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.http import JsonResponse
+from accounts.models import Profile
 
 # Create your views here.
 
@@ -64,11 +65,16 @@ def oauth_callback(request):
 				}
 			)
 
-			if created:
-				user.set_unusable_password()
-				user.save()
+			# if created:
+			# 	user.set_unusable_password()
+			# 	user.save()
 
+			if not hasattr(user, 'profile'):
+				Profile.objects.create(user=user)
+				
 			from django.contrib.auth import login
+			user.profile.is_online = True
+			user.profile.save()
 			login(request, user)
 
 			return redirect('home:home')
@@ -79,5 +85,7 @@ def oauth_callback(request):
 		return JsonResponse({'error': 'Failed to get access token'}, status=400)
 
 def logout_view(request):
+	request.user.profile.is_online = False
+	request.user.profile.save()
 	logout(request)
 	return JsonResponse({'message': 'Logged out successfully'})
