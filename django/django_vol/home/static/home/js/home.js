@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalBackground = document.getElementById('modal-background');
     const closeButton = document.getElementById('close-btn');
 
-	fetch('/api/check-login-status/')
+	fetch('/accounts/users/me/get-myname/')
 		.then(response => {
 			if (response.status === 200) {
 				response.json().then(data => {
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function fetchLoggedInUsers() {
-        fetch('/api/logged-in-users/')
+        fetch('/accounts/users/online-users/')
             .then(response => response.json())
             .then(data => {
                 const users = data.users;

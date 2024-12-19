@@ -6,7 +6,7 @@ window.ChatManager = {
 			console.log(`이미 ${username}과 연결됨`);
 			return;
 		}
-		fetch('/api/check-login-status')
+		fetch('/accounts/users/me/get-myname')
 			.then(response => response.json())
 			.then(data => {
 				const myname = data.username;  // 로그인한 사용자 이름 가져오기

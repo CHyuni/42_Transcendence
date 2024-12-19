@@ -6,7 +6,6 @@ build:
 
 up:
 	docker-compose -f ./docker-compose.yml --env-file .env up --build -d
-#	docker exec -it django /bin/bash
 
 down:
 	docker-compose -f ./docker-compose.yml --env-file .env down
@@ -19,6 +18,8 @@ fclean:
 	docker-compose -f ./docker-compose.yml --env-file .env down
 	docker volume rm $$(docker volume ls -q) || true
 	docker image rm $$(docker images -aq) || true
+	docker network prune -f
+	docker system prune -a -f || true
 
 re:
 	make fclean

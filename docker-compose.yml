@@ -3,6 +3,7 @@ version: '3.8'
 services:
   django:
     build: ./django
+    image: django
     container_name: django
     env_file: .env
     networks:
@@ -15,6 +16,7 @@ services:
         
   nginx:
     build: ./nginx
+    image: nginx
     container_name: nginx
     env_file: .env
     networks:
@@ -23,15 +25,12 @@ services:
         - nginx_conf:/etc/nginx/conf.d
         - static_vol:/home/staticfiles
     ports:
-      - "8080:80"
+      - "8080:8080"
 
   postgres:
     image: postgres:17-alpine3.20
     container_name: postgres
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file: .env
     networks:
       - transcendence
     volumes:
@@ -39,6 +38,12 @@ services:
       - root_vol:/home
     ports:
      - "5432:5432"
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+    #   interval: 1s
+    #   timeout: 1s
+    #   retries: 5
+    #   start_period: 1s
 
   redis:
     image: redis:7.4.1-alpine3.20
@@ -59,32 +64,32 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/django/django_vol
+      device: ${PWD}/django/django_vol
 
   nginx_conf:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/nginx/nginx_conf
+      device: ${PWD}/nginx/nginx_conf
 
   static_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/django/django_vol/staticfiles
+      device: ${PWD}/django/django_vol/staticfiles
 
   postgres_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu/postgre/postgres_vol
+      device: ${PWD}/postgre/postgres_vol
 
   root_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/changhyu/goinfre/changhyu
+      device: ${PWD}
