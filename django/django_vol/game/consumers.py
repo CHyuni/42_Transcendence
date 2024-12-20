@@ -1,93 +1,220 @@
 import json
 import math
+import asyncio
+import redis
+import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels_redis.core import RedisChannelLayer
 
 class PongConsumer(AsyncWebsocketConsumer):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.redis_client = redis.Redis(host='redis', port=6379, db=0)
+		self.CANVAS_WIDTH = 800
+		self.CANVAS_HEIGHT = 600
+		self.connected = False
+
 	async def connect(self):
-		self.room_name = self.scope['url_route']['kwargs']['room_name']
-		self.room_group_name = f'game_{self.room_name}'
+		try:
+			self.room_name = self.scope['url_route']['kwargs']['room_name']
+			self.room_group_name = f'game_{self.room_name}'
+			self.game_started_key = f"game_started_{self.room_group_name}"
+			
+			current_players = int(self.redis_client.get(f"room_count_{self.room_group_name}") or 0)
+			
+			if current_players >= 2:
+				logging.warning(f"Room {self.room_name} is full. Connection rejected.")
+				await self.close()
+				return
+			
+			current_players = int(self.redis_client.incr(f"room_count_{self.room_group_name}"))
 
-		await self.channel_layer.group_add(
-			self.room_group_name,
-			self.channel_name
-		)
-
-		await self.accept()
-
-		group_channels = await self.channel_layer.group_channels(self.room_group_name)
-		if len(group_channels) == 1:
-			self.user_identifier = 'user1'
-		elif len(group_channels) == 2:
-			self.user_identifier = 'user2'
-		else:
+			self.user_identifier = 'user1' if current_players == 1 else 'user2'
+			
+			if self.user_identifier == 'user1':
+				self.game_state = {
+					'ball': {
+						'x': self.CANVAS_WIDTH / 2,
+						'y': self.CANVAS_HEIGHT / 2,
+						'radius': 10,
+						'velocityX': 5,
+						'velocityY': 5,
+						'speed': 7
+					},
+					'user1': {
+						'x': 0,
+						'y': (self.CANVAS_HEIGHT - 100) / 2,
+						'width': 10,
+						'height': 100,
+						'score': 0,
+					},
+					'user2': {
+						'x': self.CANVAS_WIDTH - 10,
+						'y': (self.CANVAS_HEIGHT - 100) / 2,
+						'width': 10,
+						'height': 100,
+						'score': 0,
+					},
+					'canvas_width': self.CANVAS_WIDTH,
+					'canvas_height': self.CANVAS_HEIGHT,
+				}
+				self.redis_client.set(self.game_started_key, "False")
+				self.redis_client.set(f"game_state_{self.room_group_name}", 
+									json.dumps(self.game_state))
+			else:
+				stored_state = self.redis_client.get(f"game_state_{self.room_group_name}")
+				if not stored_state:
+					logging.error("Game state not found")
+					await self.close()
+					return
+				self.game_state = json.loads(stored_state)
+			
+			await self.channel_layer.group_add(
+				self.room_group_name,
+				self.channel_name
+			)
+			
+			self.connected = True
+			await self.accept()
+			
+			await self.send(text_data=json.dumps({
+				'game_state': self.game_state,
+				'user_identifier': self.user_identifier
+			}))
+			
+			if current_players == 2:
+				self.redis_client.set(self.game_started_key, "True")
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'game_start',
+					}
+				)
+				
+		except Exception as e:
+			logging.error(f"Connection error: {e}")
+			if hasattr(self, 'connected') and not self.connected:
+				self.redis_client.decr(f"room_count_{self.room_group_name}")
 			await self.close()
-			return
-		
-		canvas_width = 800
-		canvas_height = 600
 
-		self.game_state = {
-			'ball': {
-				'x' : canvas_width / 2,
-				'y' : canvas_height / 2,
-				'radius': 10,
-				'velocityX': 5,
-				'velocityY': 5,
-				'speed': 7
-			},
-			'user1': {
-				'x': 0,
-				'y': (canvas_height - 100) / 2,
-				'width': 10,
-				'height': 100,
-				'score': 0,
-			},
-			'user2': {
-				'x': canvas_width - 10,
-				'y': (canvas_height - 100) / 2,
-				'width': 10,
-				'height': 100,
-				'score': 0,
-			},
-			'canvas_width': canvas_width,
-			'canvas_height': canvas_height,
-		}
+	async def game_start(self, event):
+		if not self.connected:
+			return
+		await self.send(text_data=json.dumps({
+			'type': event['type']
+		}))
+		
+		# if self.user_identifier == 'user1':
+		asyncio.create_task(self.game_loop(event))
+			# await self.channel_layer.group_send(
+			# 	self.room_group_name,
+			# 	{
+			# 		'type': 'game_loop',
+			# 	}
+			# )
+
+	async def game_loop(self, event):
+		if not hasattr(self, 'game_loop_running'):
+			self.game_loop_running = True
+			frame_per_second = 50
+		
+		while self.game_loop_running:
+			try:
+				game_started = self.redis_client.get(self.game_started_key)
+				if not game_started or game_started.decode() != "True":
+					self.game_loop_running = False
+					break
+
+				if self.user_identifier == 'user1':
+					self.update()
+					self.redis_client.set(f"game_state_{self.room_group_name}", 
+										json.dumps(self.game_state))
+			
+				stored_state = self.redis_client.get(f"game_state_{self.room_group_name}")
+				if not stored_state:
+					logging.error("Game state not found")
+					await self.close()
+					return
+				self.game_state = json.loads(stored_state)
+				await self.send(text_data=json.dumps({
+					'game_state': self.game_state
+				}))
+					
+				await asyncio.sleep(1 / frame_per_second)
+				
+			except Exception as e:
+				logging.error(f"Error in game loop: {e}")
+				self.game_loop_running = False
+				break
+		
+	async def update_send(self, event):
+		if 'game_state' in event:
+			self.game_state = event['game_state']
 
 		await self.send(text_data=json.dumps({
 			'game_state': self.game_state
 		}))
 
-		if len(group_channels) == 2:
-			await self.channel_layer.group_send(
-				self.room_group_name,
-				{
-					'type': 'game_start',
-				}
-			)
-	
 	async def disconnect(self, close_code):
-		await self.channel_layer.group_discard(
-			self.room_group_name,
-			self.channel_name
-		)
-
-		group_channels = await self.channel_layer.group_channels(self.room_group_name)
-
-		if not group_channels:
-			await self.channel_layer.connection.delete(self.room_group_name)
+		if hasattr(self, 'game_loop_running'):
+			self.game_loop_running = False
+		try:
+			if not hasattr(self, 'room_group_name'):
+				return
+				
+			await self.channel_layer.group_discard(
+				self.room_group_name,
+				self.channel_name
+			)
+			
+			current_players = int(self.redis_client.decr(f"room_count_{self.room_group_name}"))
+			
+			if current_players <= 0:
+				keys_to_delete = [
+					f"room_count_{self.room_group_name}",
+					self.game_started_key,
+					f"game_state_{self.room_group_name}"
+				]
+				self.redis_client.delete(*keys_to_delete)
+				
+			if current_players > 0:
+				await self.channel_layer.group_send(
+					self.room_group_name,
+					{
+						'type': 'game_stop',
+						'message': 'Player disconnected'
+					}
+				)
+				
+		except Exception as e:
+			logging.error(f"Disconnect error: {e}")
 	
-	async def receive_json(self, text_data_json):
+	async def game_stop(self, event):
+		if not self.connected:
+			return
+		await self.send(text_data=json.dumps({
+			'type': 'game_stop',
+			'message': event['message']
+		}))
+
+	async def receive(self, text_data):
+		text_data_json = json.loads(text_data)
 		message = text_data_json
 		key = message['key']
 		user_identifier = self.user_identifier
 
+		stored_state = self.redis_client.get(f"game_state_{self.room_group_name}")
+		if stored_state:
+			self.game_state = json.loads(stored_state)
+
 		self.update_game_state(key, user_identifier)
+
+		self.redis_client.set(f"game_state_{self.room_group_name}", json.dumps(self.game_state))
 
 		await self.channel_layer.group_send(
 			self.room_group_name,
 			{
-				'type': 'update_game_state',
+				'type': 'update_send',
 				'game_state': self.game_state
 			}
 		)
@@ -103,8 +230,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 					user['y'] -= user['height']/5
 		else:
 			pass
-
-		self.update()
 
 	def update(self):
 		if(self.game_state['ball']['x'] - self.game_state['ball']['radius'] < 0):

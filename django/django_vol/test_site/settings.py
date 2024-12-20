@@ -25,11 +25,11 @@ SECRET_KEY = 'django-insecure-75*dh@hau$*z$=$v2y&43+mwz!818azja355j3%%!1dj!rbx=+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.228.235.11']
+ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.194.206.182']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://10.12.9.1:8080',
-	'http://211.228.235.11:8080',
+	'http://211.194.206.182:8080',
 	'http://localhost:8080',
 ]
 
@@ -89,6 +89,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('redis', 6379)],
+			"capacity": 1500,
+			"expiry": 10,
         },
     },
 }
@@ -178,4 +180,31 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+}
+
+LOGGING = {
+   'version': 1,
+   'disable_existing_loggers': False,
+    'formatters':{ # 추가
+         'simple':{
+            'format':'%(levelname)s %(asctime)s %(message)s'
+        }
+    },
+    'handlers': {
+       'file': {
+            'class': 'logging.FileHandler',
+            'filename': './app.log',  # 프로젝트 내부의 상대 경로
+            'formatter': 'simple'
+       },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        },
+       '': {
+            'handlers': ['file'],
+            'level': 'INFO'
+        }
+    },
 }

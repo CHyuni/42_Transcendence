@@ -11,8 +11,9 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from chat import consumers
 from django.urls import path, re_path
+from chat import consumers as chat_consumers
+from game import consumers as game_consumers
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_site.settings')
 
@@ -21,7 +22,8 @@ application = ProtocolTypeRouter({
 	"websocket": AuthMiddlewareStack(
 		URLRouter(
 			[
-				re_path(r'ws/chat/(?P<room_name>\w+)/$', consumers.ChatConsumer.as_asgi()),
+				re_path(r'ws/chat/(?P<room_name>\w+)/$', chat_consumers.ChatConsumer.as_asgi()),
+				re_path(r'ws/pong/(?P<room_name>\w+)/$', game_consumers.PongConsumer.as_asgi()),
 			]
 		)
 	),

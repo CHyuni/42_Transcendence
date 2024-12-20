@@ -95,19 +95,26 @@ function game(){
 
 const roomName = document.getElementById('room-name').textContent;
 const gameSocket = new WebSocket(`ws://${window.location.host}/ws/pong/${roomName}/`);
-console.log("stat");
 let gameStarted = false;
 let loop;
 
 gameSocket.onmessage = (e) => {
 	const data = JSON.parse(e.data);
 	if (data.type === 'game_start') {
+		console.log(data.type);
 		if (!gameStarted) {
 			gameStarted = true;
 			let framePerSecond = 50;
 			loop = setInterval(game, 1000 / framePerSecond);
 		}
-	} else {
+	} else if (data.type === 'game_stop') {
+		if (gameStarted) {
+			clearInterval(loop);
+			gameStarted = false;
+			loop = null;
+		}
+	}
+	else {
 		const gameState = data.game_state;
 
 		ball.x = gameState.ball.x;
@@ -133,17 +140,26 @@ gameSocket.onmessage = (e) => {
 	}
 }
 
+
 gameSocket.onclose = (e) => {
-	console.error('WebSocket connection closed unexpectedly');
+	console.error('WebSocket connection closed unexpectedly', e);
+	console.error('Close code:', e.code);
+	console.error('close reason:', e.reason);
 };
 
 document.addEventListener('keydown', (event) => {
 	const key = event.key;
-
-	gameSocket.send(JSON.stringify({
-		'key': key,
-	}));
+	console.log(key)
+	if (key == "ArrowDown" || key == "ArrowUp" || key == "w" || key == "s" || key == "W" || key == "S") {
+		gameSocket.send(JSON.stringify({
+			'key': key,
+		}));
+	}
 });
+
+window.onbeforeunload = () => {
+	gameSocket.close();  // 페이지가 닫히기 전에 WebSocket 연결 종료
+};
 
 function init(){
 	render();
