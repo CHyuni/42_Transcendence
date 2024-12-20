@@ -50,7 +50,7 @@ window.ChatManager = {
             this.chatSockets[username].send(JSON.stringify({ 'message': message }));
             
             // 보낸 메시지를 UI에 추가
-            const chatContent = document.getElementById('chat-content');
+            const Content = document.getElementById('chat-content');
             chatContent.innerHTML += `<div class="sent-message">${message}</div>`;
         }
 

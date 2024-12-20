@@ -1,4 +1,4 @@
-// select canvas element
+2// select canvas element
 const canvas = document.getElementById("pong");
 
 // getContext of canvas = methods and properties to draw and do a lot of thing to the canvas
@@ -192,7 +192,7 @@ function update(){
         ball.velocityY = ball.speed * Math.sin(angleRad);
         
         // speed up the ball everytime a paddle hits it.
-        ball.speed += 0.1;
+        ball.speed += 0.3;
     }
 }
 

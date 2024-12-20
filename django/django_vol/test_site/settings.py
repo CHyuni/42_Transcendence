@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'api',
     'chat',
     'accounts',
+    'game',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

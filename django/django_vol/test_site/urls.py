@@ -28,7 +28,8 @@ router.register(r'user', UserViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
-    path('ws/', include('chat.urls')),
     path('api/', include(router.urls)),
     path('accounts/', include('accounts.urls')),
+    path('ws/chat/', include('chat.urls')),
+    path('ws/pong/', include('game.urls')),
 ]

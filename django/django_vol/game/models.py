@@ -15,7 +15,7 @@
 #     created_at = models.DateTimeField(auto_now_add=True)
 #     started_at = models.DateTimeField(null=True, blank=True)
 #     ended_at = models.DateTimeField(null=True, blank=True)
-#     current_people = models.IntegerField(default=0) 
+#     current_people = models.IntegerField(default=0)
 #     max_people = models.IntegerField(default=0)
 #     status = models.CharField(max_length=20, choices=STATUS, default='PENDING')
 #     winner = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, blank=True, related_name='tournament_winner')

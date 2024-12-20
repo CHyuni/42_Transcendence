@@ -14,6 +14,9 @@ class Homepage(TemplateView):
 		context['title'] = '태진업고튀어'
 		return context
 
+class Gamepage(TemplateView):
+	template_name = 'home/index.html'
+
 def oauth_callback(request):
 	code = request.GET.get('code')
 

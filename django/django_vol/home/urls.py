@@ -7,4 +7,5 @@ urlpatterns = [
 	path('callback/', views.oauth_callback, name='oauth_callback'),
 	path('logout/', views.logout_view, name='logout'),
 	path('accounts/', include('accounts.urls')),
+	path('game/', views.Gamepage.as_view(), name='game')
 ]
