@@ -12,15 +12,20 @@ document.addEventListener('DOMContentLoaded', function () {
 					const username = data.username;
 					contentDiv.innerHTML = `
 						<h1 class="headline">Welcome, ${username}</h1>
-						<button id="logoutButton" class="btn">로그아웃</button>
+						<button id="playButton" class="btn first">playing</button>
+						<button id="logoutButton" class="btn second">Logout</button>
 					`;
+					document.getElementById('playButton').addEventListener('click', function() {
+						window.location.href = '/game';
+					})
 					document.getElementById('logoutButton').addEventListener('click', logout);
 					fetchLoggedInUsers();
+					userListDiv.style.display = 'flex';
 				});
 			} else {
 				contentDiv.innerHTML = `
 					<h1 class="headline">PING PONG</h1>
-					<button id="loginButton" class="btn">login 42 oauth</button>
+					<button id="loginButton" class="btn first">continue with 42</button>
 				`;
 				document.getElementById('loginButton').addEventListener('click', login);
 			}

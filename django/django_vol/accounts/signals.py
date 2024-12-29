@@ -7,6 +7,7 @@ from .models import Profile
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)  # User가 생성될 때 Profile도 생성
+        
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):

@@ -35,10 +35,29 @@ body {
 }
 
 .btn {
-    padding: 10px 20px; /* 버튼 크기 조정 */
-    font-size: 16px; /* 버튼 텍스트 크기 */
+    background-image: url('/static/home/images/board.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    background-repeat: no-repeat; /* 반복 방지 */
+    background-position: center; /* 중앙 정렬 */
+    padding: 15px 50px; /* 버튼 크기 조정 */
+    font-size: 30px; /* 버튼 텍스트 크기 */
+    color:rgb(48, 45, 59);
+    border: none;
     cursor: pointer;
-	margin-top: -150px;
+    text-align: center;
+	font-family: "Jersey 15", serif;
+	/* margin-top: -130px; */
+    /* width: 300px; */
+    /* height: 100px; */
+}
+
+.first {
+    margin-top: -130px;
+}
+
+.second {
+    margin-top: 20px;
 }
 
 .user-item {
@@ -52,6 +71,7 @@ body {
 }
 
 #user-list {
+    display: none;
     width: 10%;                    /* 가로 크기 100% */
     min-height: 100px;               /* 최소 높이 설정 */
     max-height: 300px;               /* 최대 높이 설정 */
@@ -60,7 +80,6 @@ body {
     background-color: #f4f4f4;       /* 배경 색상 */
     border-radius: 20px;             /* 둥근 사각형으로 만들기 */
     box-sizing: border-box;          /* padding 포함하여 크기 계산 */
-    display: flex;
     flex-direction: column;          /* 세로로 나열 */
     position: absolute;  /* absolute로 위치를 자유롭게 조정 */
     top: 400px;  /* 화면 상단에서 20px 위치 */
