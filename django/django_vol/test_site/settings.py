@@ -25,9 +25,10 @@ SECRET_KEY = 'django-insecure-75*dh@hau$*z$=$v2y&43+mwz!818azja355j3%%!1dj!rbx=+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.194.206.182']
+ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.194.206.182', '10.12.8.3']
 
 CSRF_TRUSTED_ORIGINS = [
+    'http://10.12.8.3:8080',
     'http://10.12.9.1:8080',
 	'http://211.194.206.182:8080',
 	'http://localhost:8080',
@@ -50,9 +51,11 @@ INSTALLED_APPS = [
 	'oauth2_provider',
     'rest_framework',
     'channels',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,6 +64,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://10.12.8.3:3000"
+]
+
+# CORS_ALLOWED_METHODS = [
+# ]
+
+# CORS_ALLOWED_HEADERS = [
+# ]
 
 ROOT_URLCONF = 'test_site.urls'
 

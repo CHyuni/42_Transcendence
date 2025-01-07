@@ -42,6 +42,7 @@ def oauth_callback(request):
 
 def logout_view(request):
 	request.user.profile.is_online = False
+	request.user.profile.status = "offline"
 	request.user.profile.save()
 	logout(request)
 	return JsonResponse({'message': 'Logged out successfully'})

@@ -9,7 +9,22 @@ class Profile(models.Model):
 		on_delete=models.CASCADE, related_name='profile'
 	)
 	is_online = models.BooleanField(default=False)
-	# status = models.
+	image = models.URLField(null=True, blank=True)
+	win_count = models.IntegerField(default=0)
+	lose_count = models.IntegerField(default=0)
+
+	STATUS_CHOICES = [
+        ("available", "Available"),
+        ("playing", "Playing"),
+        ("in-queue", "In Queue"),
+		("offline", "Offline"),
+    ]
+
+	status = models.CharField(
+		max_length=20,
+		choices=STATUS_CHOICES,
+		default="offline"
+	)
 
 	def __str__(self):
 		return f"{self.user.username}'s Profile"

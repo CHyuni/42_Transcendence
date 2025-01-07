@@ -26,3 +26,9 @@ class UserViewSet(viewsets.ModelViewSet):
 		online_users = User.objects.filter(profile__is_online=True)
 		usernames = [user.username for user in online_users]
 		return Response({'users': usernames})
+
+def apitest(request):
+	response = request.get(
+		'https://api.intra.42.fr/v2/me',
+		headers={'Authorization': f'Bearer {ACCESS_TOKEN}'}
+	)

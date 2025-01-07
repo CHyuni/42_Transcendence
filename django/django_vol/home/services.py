@@ -7,7 +7,7 @@ def get_oauth_tokens(code):
     token_url = 'https://api.intra.42.fr/oauth/token'
     client_id = settings.CLIENT_ID
     client_secret = settings.CLIENT_SECRET
-    redirect_uri = 'http://10.12.9.1:8080/callback/'
+    redirect_uri = 'http://10.12.8.3:8080/callback/'
 
     data = {
         'grant_type': 'authorization_code',
@@ -39,6 +39,7 @@ def create_or_update_user(user_info):
     first_name = user_info.get('first_name')
     last_name = user_info.get('last_name')
     email = user_info.get('email')
+    image = user_info.get('image', {}).get('link')
 
     user, created = User.objects.get_or_create(
         username=username,
@@ -53,6 +54,8 @@ def create_or_update_user(user_info):
         Profile.objects.create(user=user)
         
     user.profile.is_online = True
+    user.profile.status = "available"
+    user.profile.image = image
     user.profile.save()
     
     return user

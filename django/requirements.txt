@@ -7,3 +7,4 @@ djangorestframework
 channels
 websockets
 channels_redis
+django-cors-headers

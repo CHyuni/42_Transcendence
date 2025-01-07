@@ -8,4 +8,5 @@ router.register(r'users', views.UserViewSet)
 app_name = 'accounts'
 urlpatterns = [
 	path('', include(router.urls)),
+	# path('apitest', )
 ]
