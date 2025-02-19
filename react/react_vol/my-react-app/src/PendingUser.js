@@ -5,11 +5,10 @@ import ApiRequests from "./ApiRequests";
 import "./PendingUser.css"
 
 
-export default function PendingUser({ requests, requestsFrom, handleFriendRemove }) {
+export default function PendingUser({ requests, requestsFrom, myProfile }) {
     const [pendingRequests, setPendingRequests] = useState(requests);
     const [pendingRequestsFrom, setPendingRequestsFrom] = useState(requestsFrom);
     const { sendMessage } = useWebSocket();
-    const { userData } = useSelector(state => state.userReducer);
 
     useEffect(() => {
         setPendingRequests(requests);
@@ -22,10 +21,10 @@ export default function PendingUser({ requests, requestsFrom, handleFriendRemove
 
     const handleRejectRequest = async () => {
         try {
-            await ApiRequests(`/api/related/remove/?myuid=${userData.userid}&otheruid=${requests[0].from_user}`, {
+            await ApiRequests(`/api/related/remove/?myuid=${myProfile.userid}&otheruid=${requests[0].from_user}`, {
                 method: 'DELETE',
             });
-            sendMessage({ type: "selfRefresh", users: [{ id : userData.userid}, { id : requests[0].from_user}]});
+            sendMessage({ type: "selfRefresh", users: [{ id : myProfile.userid}, { id : requests[0].from_user}]});
         } catch (error) {
             console.error('Failed to fetch remove requests:', error);
         }

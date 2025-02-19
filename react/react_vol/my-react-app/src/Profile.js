@@ -8,9 +8,8 @@ import { useNotification } from './NotificationContext';
 import { tourCustom } from "./redux/actions/gameActions";
 import ApiRequests from "./ApiRequests";
 
-export default function Profile({ selfRefresh }) {
+export default function Profile({ selfRefresh, myProfile }) {
     const userData = useSelector(state => state.profileReducer.userData);
-    const myData = useSelector(state => state.userReducer.userData);
     const cur_mod = useSelector(state => state.modeReducer.mode);
     const customUser = useSelector(state => state.tourCustomReducer.userData);
     const custom = useRef(customUser);
@@ -36,11 +35,11 @@ export default function Profile({ selfRefresh }) {
     useEffect(() => {
         const fetchRelated = async () => {
             setLoading(true);
-            if (myData && userData && myData.userid === userData.id) {
+            if (myProfile && userData && myProfile.userid === userData.id) {
                 setMeProfile(true);
             } else {
                 setMeProfile(false);
-                const response_related = await ApiRequests(`/api/related/friend/?myuid=${myData.userid}&otheruid=${userData.id}`);
+                const response_related = await ApiRequests(`/api/related/friend/?myuid=${myProfile.userid}&otheruid=${userData.id}`);
                 if (response_related.is_related) {
                     setRelated(true);
                 } else {
@@ -49,7 +48,7 @@ export default function Profile({ selfRefresh }) {
                 const response_blocked = await ApiRequests(`/api/blocked/create/`, {
                     method: 'POST',
                     body: JSON.stringify({
-                        myuid: myData.userid,
+                        myuid: myProfile.userid,
                         otheruid: userData.id,
                         mode: 'check'
                     }),
@@ -73,7 +72,7 @@ export default function Profile({ selfRefresh }) {
             const response_check = await ApiRequests('/api/blocked/create/', {
                 method: 'POST',
                 body: JSON.stringify({
-                    myuid: myData.userid,
+                    myuid: myProfile.userid,
                     otheruid: userData.id,
                     mode: 'checkBidirectional'
                 }),
@@ -86,7 +85,7 @@ export default function Profile({ selfRefresh }) {
                 showToastMessage(`${userData.name}님에게 친구 요청을 보냈습니다.`, 3000, 'notice');
                 return;
             }
-            const response = await ApiRequests(`/api/related/friend/?myuid=${myData.userid}&otheruid=${userData.id}`);
+            const response = await ApiRequests(`/api/related/friend/?myuid=${myProfile.userid}&otheruid=${userData.id}`);
             if (response.message) {
                 alert('이미 요청이 진행 중 입니다.');
             } else if (response.NoMatching) {
@@ -99,14 +98,14 @@ export default function Profile({ selfRefresh }) {
 
     const handleFriendRemove = async () => {
         try {
-            await ApiRequests(`/api/related/remove/?myuid=${myData.userid}&otheruid=${userData.id}`, {
+            await ApiRequests(`/api/related/remove/?myuid=${myProfile.userid}&otheruid=${userData.id}`, {
                 method: 'DELETE',
             });
-            sendMessage({ type: "selfRefresh", users: [{ id : myData.userid}, { id : userData.id}]});
+            sendMessage({ type: "selfRefresh", users: [{ id : myProfile.userid}, { id : userData.id}]});
             const response_blocked = await ApiRequests(`/api/blocked/create/`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    myuid: myData.userid,
+                    myuid: myProfile.userid,
                     otheruid: userData.id,
                     mode: 'check'
                 }),
@@ -126,7 +125,7 @@ export default function Profile({ selfRefresh }) {
             const response = await ApiRequests(`/api/blocked/create/`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    myuid: myData.userid,
+                    myuid: myProfile.userid,
                     otheruid: userData.id,
                     mode: 'create'
                 }),
@@ -135,8 +134,8 @@ export default function Profile({ selfRefresh }) {
                 }
             });
             if (response.message === 'addBlocked') {
-                sendMessage({ type: "selfRefresh", users: [{ id : myData.userid}, { id : userData.id}]})
-                const response_related = await ApiRequests(`/api/related/friend/?myuid=${myData.userid}&otheruid=${userData.id}`);
+                sendMessage({ type: "selfRefresh", users: [{ id : myProfile.userid}, { id : userData.id}]})
+                const response_related = await ApiRequests(`/api/related/friend/?myuid=${myProfile.userid}&otheruid=${userData.id}`);
                 if (response_related.is_related)
                     handleFriendRemove();
                 alert(`${userData.name}님을 차단 하였습니다.`);
@@ -150,10 +149,10 @@ export default function Profile({ selfRefresh }) {
 
     const handleUnBlock = async () => {
         try {
-            const response = await ApiRequests(`/api/blocked/unblock/?myuid=${myData.userid}&otheruid=${userData.id}`, {
+            const response = await ApiRequests(`/api/blocked/unblock/?myuid=${myProfile.userid}&otheruid=${userData.id}`, {
                 method: 'DELETE',
             });
-            sendMessage({ type: "selfRefresh", users: [{ id : myData.userid}, { id : userData.id}]});
+            sendMessage({ type: "selfRefresh", users: [{ id : myProfile.userid}, { id : userData.id}]});
             alert('차단 해제 완료.');
         } catch (error) {
             console.error('Failed to fetch unblock requests:', error);
@@ -165,7 +164,6 @@ export default function Profile({ selfRefresh }) {
     };
 
     const toggleDropdown = () => {
-        // 드롭다운 내용 토글
         const dropdownContent = document.querySelector('.dropdown-content');
         if (dropdownContent.style.display === 'block') {
           dropdownContent.style.display = 'none';
@@ -175,7 +173,6 @@ export default function Profile({ selfRefresh }) {
     }
 
     const handleChat = () => {
-        // console.log("Chat clicked for user:", userData.id);
         dispatch(toggleFriend(userData.id));
         toggleDropdown();
     };
@@ -218,20 +215,18 @@ export default function Profile({ selfRefresh }) {
                                 const response = await ApiRequests(`/api/validate/?nickname=${encodeURIComponent(temp)}`, {
                                     method: 'GET',
                                 });
-                                // console.log("res",response);
                             } catch (error) {
                                 alert('입력 형식에 오류가 있습니다.');
                                 await ApiRequests('/api/status/me/state-update/',  {
                                     method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }
                                 })
-                                // console.error('닉네임 검증 실패:', error);
                             }
                             if (temp === 'cancle') return;
-                            if (temp === '') temp = myData.username;
-                            dispatch(tourCustom(0, [{ user_id: myData.userid, tournament_name: temp }]));
+                            if (temp === '') temp = myProfile.username;
+                            dispatch(tourCustom(0, [{ user_id: myProfile.userid, tournament_name: temp }]));
                         }
                     }
-                    sendMessage({ type: "game_request", from_user: myData.userid, to_user: userData.id, mode: mode});
+                    sendMessage({ type: "game_request", from_user: myProfile.userid, to_user: userData.id, mode: mode});
                 } else if (response_other.message === 'in-queue') {
                     alert('상대방이 다른 작업 중 입니다.');
                 } else {
@@ -262,54 +257,13 @@ export default function Profile({ selfRefresh }) {
     };
     return (
         <div class="profile-container">
-            <div class="profile-image-header">
-                {meProfile ? (
-                    <>
-                        <div class="profile-header">
-                            <img class="profile-icon" 
-                                src="/profile.png" 
-                                alt="profile icon" 
-                            />
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div class="profile-header">
-                            <img class="profile-icon" 
-                                src="/profile.png" 
-                                alt="profile icon"
-                                onClick={toggleDropdown}
-                            />
-                            <div class="dropdown-content">
-                                {related ? (
-                                    <>
-                                        <li class="dropdown-li" onClick={handleChat}>Chat</li>
-                                    </>
-                                ) : (
-                                    <>
-                                        <li class="dropdown-li" onClick={handleFriendRequest}>Add</li>
-                                    </>
-                                )}
-                                {blocked ? (
-                                    <>
-                                        <li class="dropdown-li" onClick={handleUnBlock}>UnBlock</li>
-                                    </>
-                                ) : (
-                                    <>
-                                        <li class="dropdown-li" onClick={handleFriendBlocked}>Block</li>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </>
-                )}
-                <button type="button" 
-                    class="btn-close"
-                    id="profile-close"
-                    aria-label="Close"
-                    onClick={handleClose}
-                ></button>
-            </div>
+            <ProfileHeader 
+                meProfile={meProfile} 
+                handleClose={handleClose} 
+                related={related} 
+                blocked={blocked} 
+                toggleDropdown={toggleDropdown}
+            />
             <div class="profile-main">
                 <div class="profile-image-container">
                     <div class="profile-image-box">

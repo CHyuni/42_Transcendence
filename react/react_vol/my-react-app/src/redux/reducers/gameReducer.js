@@ -4,10 +4,6 @@ const modeInit = {
 	mode: 'Casual Mod',
 };
 
-const userInit = {
-	userData: {},
-}
-
 const tourInit = {
 	start: false,
 	userData: {},
@@ -30,18 +26,6 @@ export const modeReducer = (state = modeInit, action) => {
 					...state,
 					mode: 'Casual Mod'
 				}
-			}
-		default:
-			return state;
-	}
-}
-
-export const userReducer = (state = userInit, action) => {
-	switch (action.type) {
-		case USER_RATING_UPDATE:
-			return {
-				...state,
-				userData: { ...state.userData, ...action.payload }
 			}
 		default:
 			return state;

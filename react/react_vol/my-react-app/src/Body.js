@@ -4,13 +4,10 @@ import "./body.css"
 import TeamCard from "./TeamCard";
 import Mypage from "./Mypage";
 import Stats from "./Stats";
-import TournamentDisplay from "./TournamentDisplay";
 import Chain from "./Chain";
 import { useWebSocket } from "./WebSocketContext";
-import { useNavigate } from 'react-router-dom';
 import ApiRequests from "./ApiRequests";
 import { useNotification } from './NotificationContext';
-import { tournaReducer } from "./redux/reducers/gameReducer";
 import { tourCustom } from "./redux/actions/gameActions";
 
 
@@ -37,7 +34,7 @@ const jpgs = [
     }
 ]
 
-export default function Body( { state, user, userProfile } ) {
+export default function Body( { state, user, myProfile } ) {
     const { sendMessage } = useWebSocket();
     const cur_mod = useSelector(state => state.modeReducer.mode);
     const { showToastMessage, showConfirmModal } = useNotification();
@@ -223,13 +220,13 @@ export default function Body( { state, user, userProfile } ) {
                         </>
                         : user === "mypage"
                         ?
-                        <Mypage userProfile={userProfile}/>
+                        <Mypage myProfile={myProfile}/>
                         : user === "stats"
                         ?
-                        <Stats userProfile={userProfile} user={user}/>
+                        <Stats myProfile={myProfile} user={user}/>
                         : user === "blockchain"
                         ?
-                        <Chain userProfile={userProfile} user={user}/>
+                        <Chain myProfile={myProfile} user={user}/>
                         :
                         <></>
                     }

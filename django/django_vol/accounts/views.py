@@ -39,13 +39,6 @@ class UserViewSet(viewsets.ModelViewSet):
 	serializer_class = UserSerializer
 	permission_classes = [IsAuthenticated]
 
-	@action(detail=True, methods=['get'], url_path='get-myname')
-	def check_login_status(self, request, pk=None):
-		if pk == 'me':
-			return Response({'username': request.user.username})
-		user = self.get_object()
-		return Response({'username': user.username})
-
 	@action(detail=False, methods=['get'], url_path='get-status')
 	def get_status(self, request):
 		try:
@@ -216,11 +209,6 @@ class OAuthViewSet(viewsets.ViewSet):
 		else:
 			return redirect(f'/verify-2fa?user_id={user.id}')
 
-	# @action(detail=False, methods=['get'], url_path='csrf', permission_classes=[AllowAny])
-	# @method_decorator(ensure_csrf_cookie)
-	# def get_csrf(self, request):
-	# 	response = Response({"status": "ok"})
-	# 	return response
 	@action(detail=False, methods=['get'], url_path='qrcode', permission_classes=[IsAuthenticatedOrSpecialHeader])
 	def qr_generate(self, request):
 		try:

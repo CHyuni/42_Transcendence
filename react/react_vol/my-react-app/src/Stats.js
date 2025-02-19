@@ -2,7 +2,7 @@ import React from "react";
 import "./stats.css"
 import StatCard from "./StatCard";
 
-export default function Stats({userProfile, user}) {
+export default function Stats({myProfile, user}) {
     return (
         <div class="stats-outer-container">
             <div class="stats-header-container">
@@ -31,15 +31,7 @@ export default function Stats({userProfile, user}) {
                         </div>
                     </div>
                 </div>
-                <StatCard userProfile={userProfile} user={user}/>
-                {/* <StatCard />
-                <StatCard />
-                <StatCard />
-                <StatCard />
-                <StatCard />
-                <StatCard />
-                <StatCard />
-                <StatCard /> */}
+                <StatCard user={user}/>
             </div>
         </div>
     )

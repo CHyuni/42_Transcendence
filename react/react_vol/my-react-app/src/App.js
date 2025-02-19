@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { WebSocketProvider  } from "./WebSocketContext";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate} from "react-router-dom";
 import './main.css';
@@ -9,20 +9,14 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import SideBar from "./SideBar"
 import Game from "./Game";
 import TwoFactorAuth from './TwoFactorAuth';
-import { useSelector, useDispatch } from "react-redux";
-import { ratingUpdate } from "./redux/actions/gameActions";
 import ApiRequests from './ApiRequests'
 import { NotificationProvider } from "./NotificationContext";
-
-
-function Home() {
-  return <h2>Home Page</h2>;
-}
 
 function Main() { 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputText, setInputText] = useState('');
 
+  // 이하 3 함수 테스트 로그인을 위한 것
   const handleOpenModal = () => {
     setIsModalOpen(true);
     setInputText('');
@@ -35,7 +29,8 @@ function Main() {
   const handleInputChange = (event) => {
     setInputText(event.target.value);
   };
-  
+
+  // 현재 42 Oauth로만 로그인 가능, 테스팅을 위한 데이터베이스의 유저를 이용 해 로그인
   const handleTestLoginSubmit = async () => {
     // API 호출 로직
     try {
@@ -100,26 +95,51 @@ function Main() {
 }
 window.csrfToken = null;
 
+function useAuth() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [myProfile, setMyProfile] = useState(null);
+
+  const checkLoginStatus = useCallback(async () => {
+    try {
+      const data = await ApiRequests('/api/user/me/profile', {login_check: true});
+      setIsLoggedIn(true);
+      setMyProfile(data);
+      console.log('Logged in:', data.username);
+    } catch (error) {
+      if (!error.message.includes("401")) {
+        console.error('Error checking login status:', error);
+      }
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, [checkLoginStatus]);
+
+  return { isLoggedIn, myProfile };
+}
+
 function App() {
+  const { isLoggedIn, myProfile } = useAuth();
   const [gameStartCount, setGameStartCount] = useState(0);
   const [gameRoomId, setGameRoomId] = useState(null);
-  const [isLoggedIn, setIsloggedIn] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [selfRefreshCount, setSelfRefresh] = useState(0);
-  const dispatch = useDispatch();
 
-  const handleRefresh = () => {
+  // 전적변화, 유저상태 등을 접속중인 전 인원에게 즉각 반응 할수 있는 전유저적인 새로고침
+  const handleRefresh = useCallback(() => {
     setRefreshCount(prevCount => prevCount + 1);
-  };
+  }, []);
 
-  const setSelfRefreshCount = () => {
+  // 친구추가, 친구삭제, 차단 및 해제 등 본인 혹은 상대방만 변화가 일어나야하는 새로고침
+  const setSelfRefreshCount = useCallback(() => {
     setSelfRefresh(prevcnt => prevcnt + 1);
-  };
+  }, []);
 
   useEffect(() => {
     // 새로고침 시의 URL 확인
     const currentPath = window.location.pathname;
-    // console.log("Path check:", currentPath);
 
     if (currentPath.endsWith('/') && currentPath !== '/') {
       // trailing slash가 있고 root path가 아닌 경우
@@ -127,55 +147,27 @@ function App() {
       window.location.replace(newPath);
       return;
     }
-
-    let ws;
-    const checkLoginStatus = async () => {
-      try {
-        const data = await ApiRequests('/api/user/me/get-myname');
-        setIsloggedIn(true);
-        console.log('Loggined:', data.username);
-        dispatch(ratingUpdate(data.username));
-      } catch (error) {
-        console.error('Error checking login status:', error);
-        setIsloggedIn(false);
-      }
-    };
-
-    checkLoginStatus();
-
-    return () => {
-      if (ws) ws.close();
-    };
   }, []);
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <NotificationProvider>
-        <WebSocketProvider onRefresh={handleRefresh} selfRefresh={setSelfRefreshCount} onGameStart={(roomId) => { setGameRoomId(roomId); setGameStartCount(prev => prev + 1)}}>
+        <WebSocketProvider onRefresh={handleRefresh} selfRefresh={setSelfRefreshCount}
+          onGameStart={(roomId) => { setGameRoomId(roomId); setGameStartCount(prev => prev + 1)}} myProfile={myProfile}>
           {isLoggedIn ? (
             <Routes>
               <Route path="/game/:roomId" element={<Game />} />
-              {/* <Route path="/game" element={<Game />} /> */}
               <Route path="/verify-2fa" element={<TwoFactorAuth />} />
-              <Route path="/sidebar" element={<SideBar refresh={refreshCount} selfRefresh={selfRefreshCount} gameStartCount={gameStartCount} gameRoomId={gameRoomId} setGameRoomId={setGameRoomId} setGameStartCount={setGameStartCount}/>} />
+              <Route path="/sidebar" element={<SideBar refresh={refreshCount} selfRefresh={selfRefreshCount} selfRefreshbtn={setSelfRefreshCount}
+                gameStartCount={gameStartCount} gameRoomId={gameRoomId} setGameRoomId={setGameRoomId} setGameStartCount={setGameStartCount} myProfile={myProfile}/>} />
               <Route path="/" element={<Navigate to="/sidebar" />} />
-              <Route path="*" element={<Navigate to="/sidebar" />} />
               <Route path='/ai-mode' element={<AiGame />} />
+              <Route path="*" element={<Navigate to="/sidebar" />} />
             </Routes>
           ) : (
             <>
-              {/* <nav id="nav-bar">
-                <Link to="/">Main</Link>
-                <Link to="/home">Home</Link>
-                <Link to="/game">Game</Link>
-                <Link to="/sidebar">SideBar</Link>
-              </nav> */}
               <Routes>
                 <Route path="/" element={<Main />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/game" element={<Game />} />
-                <Route path="/sidebar" element={<SideBar />} />
-                <Route path="/verify-2fa" element={<TwoFactorAuth />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </>

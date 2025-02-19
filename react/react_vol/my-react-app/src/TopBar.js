@@ -17,6 +17,7 @@ export default function TopBar({ userProfile, onPageChange }) {
     ? `data:image/jpeg;base64,${profile_image_base64}` 
     : (profile_image || "/ksuh.jpg");
     const { sendMessage } = useWebSocket();
+    const { closeSocket } = useWebSocket();
 
     const toggleDropdown = () => {
         const dropdownContent = document.querySelector('.user-dropdown-content');
@@ -37,16 +38,13 @@ export default function TopBar({ userProfile, onPageChange }) {
     const logout = async () => {
         try {
             const response = await ApiRequests('/api/oauth/logout');
-            // if (response.ok) {
-                if (response.playing) {
-                    return ;
-                }
-                alert("로그아웃 되었습니다.");
-                sendMessage({ type: 'refresh' });
-                window.location.href = '/';
-            // } else {
-                // console.error("Logout failed");
-            // }
+            if (response.playing) {
+                return ;
+            }
+            alert("로그아웃 되었습니다.");
+            sendMessage({ type: 'refresh' });
+            closeSocket();
+            window.location.href = '/';
         } catch(error) {
             console.log(error);
         }

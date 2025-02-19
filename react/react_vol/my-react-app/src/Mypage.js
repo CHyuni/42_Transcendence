@@ -2,33 +2,24 @@ import React, { useEffect, useState } from "react";
 import "./mypage.css"
 import WinLossBar from "./WinLossBar";
 import ApiRequests from './ApiRequests'
-import { updateProfileImage } from './redux/actions/gameActions';
-import { useDispatch } from 'react-redux';
 
-export default function Mypage({userProfile }) {
-    useEffect(() => {
-    }, []);
-    // console.log('userProfile:', userProfile);
-    const [selectedValue, setSelectedValue] = useState(userProfile.totp_enabled ? 'option1' : 'option2');
-    // const [nickname, setNickname] = useState('ksuh');
-    const [about, setAbout] = useState(userProfile.about_me);
+export default function Mypage({ myProfile }) {
+    const [selectedValue, setSelectedValue] = useState(myProfile.totp_enabled ? 'option1' : 'option2');
+    const [about, setAbout] = useState(myProfile.about_me);
     const [profileImage, setProfileImage] = useState(
-        userProfile.profile_image_base64
-          ? `data:image/jpeg;base64,${userProfile.profile_image_base64}` 
-          : userProfile.profile_image
+        myProfile.profile_image_base64
+          ? `data:image/jpeg;base64,${myProfile.profile_image_base64}` 
+          : myProfile.profile_image
       );
-    const dispatch = useDispatch();
     const [qrImage, setqrImage] = useState('');
     const [setupID, setSetupID] = useState('');
-    const wins = userProfile.casual_win + userProfile.tournament_win;
-    const losses = userProfile.casual_lose + userProfile.tournament_lose;
+    const wins = myProfile.casual_win + myProfile.tournament_win;
+    const losses = myProfile.casual_lose + myProfile.tournament_lose;
 
-    // console.log("file", `data:image/jpeg;base64,${userProfile.file}`);
     useEffect(() => {
         const fetchQRImage = async () => {
             try {
                 const data = await ApiRequests('/api/oauth/qrcode');
-                // console.log(data);
                 setqrImage(decodeURIComponent(data.qr_code_url));
                 setSetupID(data.setup_id);
             } catch (error) {
@@ -54,7 +45,6 @@ export default function Mypage({userProfile }) {
                     setup_id: setupID
                 }),
             });
-            // console.log('Response:', response);
             alert('성공적으로 저장되었습니다.');
         } catch (err) {
             console.error('Error details:', err);
@@ -73,7 +63,6 @@ export default function Mypage({userProfile }) {
                 body: formData
             });
             setProfileImage(`data:image/jpeg;base64,${response.profile_image_base64}`);
-            // dispatch(updateProfileImage(`data:image/jpeg;base64,${response.profile_image_base64}`));
         } catch (err) {
             console.error('Error uploading image:', err);
         }
@@ -85,13 +74,11 @@ export default function Mypage({userProfile }) {
                 method: 'PATCH',
                 body: JSON.stringify({
                     about_me: about,
-                    // profile_image: profileImage,
                     totp_enabled: selectedValue === 'option1'
                 })
             });
             alert('성공적으로 저장되었습니다.');
         } catch (err) {
-            // console.error('Error details:', err);
             alert('입력 형식에 오류가 있습니다.');
         }       
     };
@@ -119,15 +106,8 @@ export default function Mypage({userProfile }) {
                     <div class="mypage-info-container">
                         <div class="mypage-row">
                             <p class="mypage-info-title">Intra-id </p>
-                            <input class="mypage-input" value={userProfile.username} disabled/>
+                            <input class="mypage-input" value={myProfile.username} disabled/>
                         </div>
-                        {/* <div class="mypage-row">
-                            <p class="mypage-info-title">Nickname </p>
-                            <input 
-                                class="mypage-input" 
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)} />
-                        </div> */}
                         <div class="mypage-row">
                             <p class="mypage-info-title">2FA Enabled</p>
                             <div class="form-check">
@@ -190,7 +170,7 @@ export default function Mypage({userProfile }) {
                                 class="chart-icon"
                                 src="chart1.png" 
                                 alt="chart icon"/>
-                            <div class="col-sub">{userProfile.rating}</div>
+                            <div class="col-sub">{myProfile.rating}</div>
                         </div>
                     </div>
                     <div class="mypage-row" id="highest-rating">
@@ -198,8 +178,8 @@ export default function Mypage({userProfile }) {
                             <div class="col-header" id="high-rating-header">Casual</div>
                             <div class="col-body">
                                 <div class="col-sub">
-                                    <span class="win-word">{userProfile.casual_win}W</span>
-                                    <span class="lose-word">{userProfile.casual_lose}L</span>
+                                    <span class="win-word">{myProfile.casual_win}W</span>
+                                    <span class="lose-word">{myProfile.casual_lose}L</span>
                                 </div>
                             </div>
                         </div>
@@ -207,21 +187,11 @@ export default function Mypage({userProfile }) {
                             <div class="col-header" id="high-rating-header">Tournament</div>
                             <div class="col-body">
                                 <div class="col-sub">
-                                    <span class="win-word">{userProfile.tournament_win}W</span>
-                                    <span class="lose-word">{userProfile.tournament_lose}L</span>
+                                    <span class="win-word">{myProfile.tournament_win}W</span>
+                                    <span class="lose-word">{myProfile.tournament_lose}L</span>
                                 </div>
                             </div>
                         </div>
-                        {/* <div class="mypage-col">
-                            <div class="col-header" id="high-rating-header">AI</div>
-                            <div class="col-body">
-                                <div class="col-sub">
-                                    <span class="win-word">{wins}W</span>
-                                    <span class="lose-word">{losses}
-                                        L</span>
-                                </div>
-                            </div>
-                        </div> */}
                     </div>
                     <div class="mypage-col" >
                         <div class="col-header"> {wins + losses}Games</div>
@@ -237,7 +207,7 @@ export default function Mypage({userProfile }) {
                                 class="chart-icon"
                                 src="bar-graph.png" 
                                 alt="bar icon"/>
-                            <div class="col-sub">{userProfile.top_rating}</div>
+                            <div class="col-sub">{myProfile.top_rating}</div>
                         </div>
                     </div>
                 </div>

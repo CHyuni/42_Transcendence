@@ -22,13 +22,11 @@ from totp.views import TOTPViewSet
 from channel.views import FriendRequestViewSet, FriendBlockedViewSet, RelatedViewSet
 from api.views import TestLoginViewSet, StateUpdateViewSet, MatchingGameViewSet
 from chat.views import ChatRoomViewSet, ChatRoomMessageViewSet
-# from game.views import TournamentViewSet, MatchViewSet
 from game.views import MatchViewSet
 import re
 
 from django.conf import settings
 from django.conf.urls.static import static
-# from api.views import UserViewSet, TournamentViewSet, MatchViewSet
 
 router = DefaultRouter()
 router.register(r'user', UserViewSet)
@@ -43,9 +41,6 @@ router.register(r'testlogin', TestLoginViewSet, basename='testlogin')
 router.register(r'related', RelatedViewSet, basename='related')
 router.register(r'status', StateUpdateViewSet, basename='statusupdate')
 router.register(r'match', MatchingGameViewSet, basename='matching')
-
-# router.register(r'tournament', TournamentViewSet)
-# router.register(r'match', MatchViewSet)
 
 from django.http import HttpResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -94,7 +89,6 @@ def validate_view(request):
 
 urlpatterns = [
     path('nginx/admin/', admin.site.urls),
-    path('', include('home.urls')),
     path('api/tournaments/', include('web3_app.urls')),
     path('api/', include(router.urls)),
     path('accounts/', include('accounts.urls')),

@@ -12,7 +12,7 @@ import ApiRequests from "./ApiRequests";
 // 3. in queue
 // 4. offline
 
-const Friends = React.memo(function Friends({ isBlock, friends = [], selfRefresh }) {
+const Friends = React.memo(function Friends({ isBlock, friends = [], myProfile }) {
     // console.log("friends prop:", friends);
     const index = useSelector((state) => state.friendReducer.idx);
     const currentFriend = friends.find(friend => friend.id === Number(index));
@@ -67,6 +67,7 @@ const Friends = React.memo(function Friends({ isBlock, friends = [], selfRefresh
                             status={user.status}
                             rating={user.rating}
                             isBlock={isBlock}
+                            myProfile={myProfile}
                         />
                     ))
                 ) : (

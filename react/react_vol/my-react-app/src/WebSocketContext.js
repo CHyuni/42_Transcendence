@@ -8,7 +8,7 @@ import { tourCustom } from './redux/actions/gameActions';
 
 const WebSocketContext = createContext(null);
 
-export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStart }) => {
+export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStart, myProfile }) => {
   const [socket, setSocket] = useState(null);
   const [username, setUsername] = useState(null);
   const [userid, setUserid] = useState(null);
@@ -39,6 +39,13 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+  useEffect(() => {
+    if (myProfile) {
+      setUserid(myProfile.userid);
+      setUsername(myProfile.username);
+    }
+  }, [myProfile])
+  
   useEffect(() => {
     custom.current = customUser;
   }, [customUser]);
@@ -109,19 +116,6 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
       getStartRef.current = false;
     };
  }, [userData]);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-        try {
-            const response = await ApiRequests('/api/user/me/profile');
-            setUsername(response.username);
-            setUserid(response.userid);
-        } catch (error) {
-            console.error('Failed to fetch user profile:', error);
-        }
-    };
-    fetchUserProfile();
-  }, []);
   
   useEffect(() => {
     if (username && userid) {
@@ -339,8 +333,14 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
     }
   };
 
+  const closeSocket = () => {
+    if (socket) {
+      socket.close();
+    }
+  };
+
   return (
-    <WebSocketContext.Provider value={{ socket, sendMessage }}>
+    <WebSocketContext.Provider value={{ socket, sendMessage, closeSocket }}>
       {children}
     </WebSocketContext.Provider>
   );

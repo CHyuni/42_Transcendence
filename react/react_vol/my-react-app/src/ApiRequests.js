@@ -30,8 +30,6 @@ const ApiRequests = async (url, options = {}) => {
     }
     
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
 

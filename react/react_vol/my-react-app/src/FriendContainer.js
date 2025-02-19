@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Friends from "./Friends";
 import "./SideBar.css"
 
-export default function FriendContainer({ requests, selfRefresh }) {
+export default function FriendContainer({ requests, selfRefresh, myProfile }) {
     // console.log("FriendContainer rendered with requests:", requests);
     const onlineFriendsCount = requests.reduce((count, request) => {
         return request.is_online ? count + 1 : count;
@@ -17,7 +17,7 @@ export default function FriendContainer({ requests, selfRefresh }) {
                 <Friends 
                     isBlock={0} 
                     friends={requests}
-                    selfRefresh= { selfRefresh }
+                    myProfile={ myProfile }
                 />
             </div>
         </div>

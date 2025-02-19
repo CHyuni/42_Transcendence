@@ -3,7 +3,7 @@ import "./stats.css"
 import ApiRequests from "./ApiRequests";
 import { useSelector } from 'react-redux';
 
-export default function StatCard({userProfile, user}) {
+export default function StatCard({user}) {
     const userData = useSelector(state => state.userReducer.userData);
     const [matches, setMatches] = useState([]);
     const [blockchainMatches, setBlockchainMatches] = useState([]);

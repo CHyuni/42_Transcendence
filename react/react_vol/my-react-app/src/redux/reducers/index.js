@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
 import checkboxReducer from "./checkboxReducer";
 import { friendReducer, profileReducer } from "./friendReducer";
-import { modeReducer, userReducer, tournaReducer, tourCustomReducer } from "./gameReducer";
+import { modeReducer, tournaReducer, tourCustomReducer } from "./gameReducer";
 
 
 const rootReducer = combineReducers({
@@ -9,7 +9,6 @@ const rootReducer = combineReducers({
   friendReducer,
   profileReducer,
   modeReducer,
-  userReducer,
   tournaReducer,
   tourCustomReducer,
 });

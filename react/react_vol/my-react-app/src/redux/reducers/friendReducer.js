@@ -23,18 +23,6 @@ export const friendReducer = (state = initialState, action) => {
   }
 };
 
-// export const friendReducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case TOGGLE_FRIEND:
-//       return {
-//         ...state,
-//         idx: action.payload.idx,
-//       };
-//     default:
-//       return state;
-//   }
-// };
-
 export const profileReducer = (state = initialState, action) => {
   switch (action.type) {
     case PROFILE_FRIEND:

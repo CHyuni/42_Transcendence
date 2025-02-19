@@ -6,9 +6,8 @@ import { useWebSocket } from "./WebSocketContext";
 import ApiRequests from "./ApiRequests";
 import { Dropdown } from 'bootstrap';
 
-export default function FriendCard({ name, id, rating, status, isBlock }) {
+export default function FriendCard({ name, id, rating, status, isBlock, myProfile }) {
   const { profileIdx } = useSelector(state => state.profileReducer);
-  const myData = useSelector(state => state.userReducer.userData);
   const { sendMessage } = useWebSocket();
   const dispatch = useDispatch();
   const handleProfile = async () => {
@@ -23,10 +22,10 @@ export default function FriendCard({ name, id, rating, status, isBlock }) {
   }
   const handleunblock = async () => {
     try {
-      const response = await ApiRequests(`/api/blocked/unblock/?myuid=${myData.userid}&otheruid=${id}`, {
+      const response = await ApiRequests(`/api/blocked/unblock/?myuid=${myProfile.userid}&otheruid=${id}`, {
           method: 'DELETE',
       });
-      sendMessage({ type: "selfRefresh", users: [{ id : myData.userid}, { id : id}]});
+      sendMessage({ type: "selfRefresh", users: [{ id : myProfile.userid}, { id : id}]});
       alert('차단 해제 완료.');
     } catch (error) {
         console.error('Failed to fetch unblock requests:', error);

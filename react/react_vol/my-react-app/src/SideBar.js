@@ -10,32 +10,27 @@ import Profile from "./Profile";
 import TopBar from "./TopBar";
 import Body from "./Body";
 import { modeChange } from "./redux/actions/gameActions";
-import { ratingUpdate } from "./redux/actions/gameActions";
 import { useWebSocket } from "./WebSocketContext";
 import { useNavigate } from 'react-router-dom';
 import ApiRequests from './ApiRequests'
-import Mypage from "./Mypage";
+import { useNotification } from './NotificationContext';
 
-export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoomId, setGameRoomId, setGameStartCount }) {
+export default function SideBar({ refresh, selfRefresh, selfRefreshbtn, gameStartCount, gameRoomId, setGameRoomId, setGameStartCount, myProfile }) {
     const [loading, setLoading] = useState(true);
     const state = useSelector(state => state.profileReducer.profileIdx);
-    const [userProfile, setUserProfile] = useState(null);
     const [users, setUsers] = useState([]);
     const dispatch = useDispatch();
     const { sendMessage } = useWebSocket();
     const cur_mod = useSelector(state => state.modeReducer.mode);
-    const [refreshbtn, setRefreshbtn] = useState(0);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [pendingFromRequests, setPendingFromRequests] = useState([]);
     const [acceptedRequests, setAcceptedRequests] = useState([]);
     const [blockedRequests, setBlockedRequests] = useState([]);
+    const { showToastMessage, showConfirmModal } = useNotification();
     const navigate = useNavigate();
-
-    const setRefreshbtnCount = () => {
-        setRefreshbtn(prevcnt => prevcnt + 1);
-    };
     
     useEffect(() => {
+        // 현재 온라인 유저 목록과 해당 유저의 profile 정보를 담음, 온라인 유저 표시에 사용될 데이터
         const fetchUsers = async () => {
             try {
                 const data = await ApiRequests('/api/user/online-users/');
@@ -64,104 +59,72 @@ export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoom
             }
         };
         fetchUsers();
-    }, [refresh, selfRefresh, refreshbtn]);
+    }, [refresh, selfRefresh]);
     
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 3000);
+        }, 1000);
         
         return () => clearTimeout(timer);
     }, []);
     
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const data = await ApiRequests('/api/user/me/profile/');
-                // console.log("data: ", data);
-                setUserProfile(data);
-                if (data) {
-                    dispatch(ratingUpdate(data));
-                }
-            } catch (error) {
-                console.error('Failed to fetch user profile:', error);
-            }
-        };
-        
-        fetchUserProfile();
-    }, [refresh, dispatch]);
-    
-    useEffect(() => {
-        if (userProfile) {
-            dispatch(ratingUpdate(userProfile))
-        }
-    }, [refresh, dispatch]);
-    
+    // 페이지가 리렌더링 될때, 매칭이 완료된 playing 상태나 게임 중 일 경우 무시 이외에는 상태: 대기중, 매칭 중이였다면 해당 매칭 취소 처리
     useEffect(() => {
         const fetchData = async () => {
-            const get_status = async () => {
-                const response = await ApiRequests('/api/status/me/get-state');
-                console.log('message', response.message);
-                if (response.message === 'playing') return true;
-                return false;
+            if (myProfile.status === 'playing') return;
+            const initstate = async () => {
+                const response_status = await ApiRequests('/api/status/me/state-update/', {
+                    method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});
+                if (response_status === 'Not Found status')
+                        console.error('state-update Failed');
+                await ApiRequests('api/match/delete/', { method: 'DELETE' });
+                await ApiRequests('/api/user/me/modeUpdate/?init=1');
+                sendMessage({ type: 'refresh' });
             }
-        const initstate = async () => {
-            const response_status = await ApiRequests('/api/status/me/state-update/', {
-                method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});
-            if (response_status === 'Not Found status')
-                    console.error('state-update Failed');
-            const response_delete = await ApiRequests('api/match/delete/', { method: 'DELETE' });
-            await ApiRequests('/api/user/me/modeUpdate/?init=1');
-                    sendMessage({ type: 'refresh' });
-        }
-            let is_playing = await get_status();
-            if (is_playing) return;
             dispatch(modeChange(0))
-        initstate();
+            initstate();
         }
         fetchData();
     }, []);
     
+    // Custom, Tournament 모드 변경
     const handleMode = async () => {
-        const fetchData = async () => {
-            const get_status = async () => {
-                const response = await ApiRequests('/api/status/me/get-state');
-                if (response.message !== 'available') return true;
-                return false;
-            }
-            let is_play = await get_status();
-            if (is_play) return;
-            dispatch(modeChange(1));
-            try {
-                await ApiRequests('/api/user/me/modeUpdate/');
-            } catch (error) {
-                console.error('Failed to fetch modeUpdate:', error);
-            }
-            sendMessage({ type: "refresh", data: userProfile.username});
+        if (myProfile !== 'available') {
+            await showToastMessage('매칭 및 게임 중에는 모드 변경이 불가능 합니다.', 2000, 'notice');
+            return;
         }
-        fetchData();
+        dispatch(modeChange(1));
+        try {
+            await ApiRequests('/api/user/me/modeUpdate/');
+        } catch (error) {
+            console.error('Failed to fetch modeUpdate:', error);
+        }
+        sendMessage({ type: "refresh", data: myProfile.username});
     };
     
+    // 보낸 친구 요청, 받은 친구 요청 데이터를 받음
     const fetchPendingRequests = async () => {
         try {
-            const response_to = await ApiRequests(`/api/friend/?user=${userProfile.userid}&status=pending_to`);
+            const response_to = await ApiRequests(`/api/friend/?user=${myProfile.userid}&status=pending_to`);
             setPendingRequests(response_to);
-            const response_from = await ApiRequests(`/api/friend/?user=${userProfile.userid}&status=pending_from`)
+            const response_from = await ApiRequests(`/api/friend/?user=${myProfile.userid}&status=pending_from`)
             setPendingFromRequests(response_from);
         } catch (error) {
             console.error('Failed to fetch pending requests:', error);
         }
     };
     
+    // 현재 나와 친구 관계인 유저들의 데이터를 받음, 온라인 여부로 내림차순 정렬
     const fetchAcceptedRequests = async () => {
         try {
-            const response = await ApiRequests(`/api/friend/?user=${userProfile.userid}&status=accepted`);
+            const response = await ApiRequests(`/api/friend/?user=${myProfile.userid}&status=accepted`);
             const modifiedRequests = response.map(responses => ({
-                id: userProfile.userid === responses.to_user ? responses.from_user : responses.to_user,
-                status: userProfile.userid === responses.to_user ? responses.from_user_status : responses.to_user_status,
-                name: userProfile.userid === responses.to_user ? responses.from_username : responses.to_username,
-                rating: userProfile.userid === responses.to_user ? responses.from_user_rating : responses.to_user_rating,
-                is_online: userProfile.userid === responses.to_user ? responses.from_user_is_online : responses.to_user_is_online
+                id: myProfile.userid === responses.to_user ? responses.from_user : responses.to_user,
+                status: myProfile.userid === responses.to_user ? responses.from_user_status : responses.to_user_status,
+                name: myProfile.userid === responses.to_user ? responses.from_username : responses.to_username,
+                rating: myProfile.userid === responses.to_user ? responses.from_user_rating : responses.to_user_rating,
+                is_online: myProfile.userid === responses.to_user ? responses.from_user_is_online : responses.to_user_is_online
             }));
             modifiedRequests.sort((a, b) => b.is_online - a.is_online);
             setAcceptedRequests(modifiedRequests);
@@ -170,9 +133,10 @@ export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoom
         }
     };
     
+    // 본인이 차단한 유저 목록을 받음
     const fetchBlockedRequests = async () => {
         try {
-            const response = await ApiRequests(`/api/blocked/get?myuid=${userProfile.userid}`);
+            const response = await ApiRequests(`/api/blocked/get?myuid=${myProfile.userid}`);
             const modifiedRequests = response.map(responses => ({
                 id: responses.blocked_user_id,
                 name: responses.blocked_user_id__username,
@@ -184,12 +148,12 @@ export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoom
     };
     
     useEffect(() => {
-        if (userProfile) {
+        if (myProfile) {
             fetchPendingRequests();
             fetchBlockedRequests();
             fetchAcceptedRequests();
         }
-    }, [selfRefresh, userProfile, refreshbtn]);
+    }, [selfRefresh, myProfile]);
     
     const game_mode = useSelector(state => state.modeReducer.mode)
     const [currentPage, setCurrentPage] = useState("none");
@@ -199,6 +163,7 @@ export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoom
 
     const [hasNavigated, setHasNavigated] = useState(false);
 
+    // 하위 컴포넌트에서 게임시작을 알렷을 경우 해당 게임으로 입장
     useEffect(() => {
         if (gameStartCount > 0 && gameRoomId) {
             navigate(`/game/${gameRoomId}`);
@@ -224,21 +189,21 @@ export default function SideBar({ refresh, selfRefresh, gameStartCount, gameRoom
                     <>
                 <div id="sidebar">
                     {state && (
-                        <Profile selfRefresh={ selfRefresh }/>
+                        <Profile selfRefresh={ selfRefresh } myProfile={ myProfile }/>
                         )}
                     <div id="sidebar-header" onClick={ handleMode }>
                         <h3 id="sidebar-header-text">{ game_mode }</h3>
                     </div>
-                    <SideBarUser users={ users } selfRefresh={ setRefreshbtnCount }/> 
-                    <FriendContainer requests={acceptedRequests} selfRefresh={ selfRefresh }/>
-                    <BlockedUser requests={blockedRequests} selfRefresh={ selfRefresh }/>
-                    <PendingUser requests={pendingRequests} requestsFrom={pendingFromRequests} selfRefresh={ selfRefresh }/>
+                    <SideBarUser users={ users } selfRefresh={ selfRefreshbtn }/> 
+                    <FriendContainer requests={acceptedRequests} selfRefresh={ selfRefresh } myProfile={ myProfile }/>
+                    <BlockedUser requests={blockedRequests} selfRefresh={ selfRefresh } myProfile={ myProfile }/>
+                    <PendingUser requests={pendingRequests} requestsFrom={pendingFromRequests} selfRefresh={ selfRefresh } myProfile={ myProfile }/>
                 </div>
-                {userProfile && <TopBar userProfile={ userProfile } onPageChange={handlePageChange} /> }
-                <Body 
+                {myProfile && <TopBar myProfile={ myProfile } onPageChange={handlePageChange} /> }
+                <Body
                     state={"none"}
                     user={currentPage}
-                    userProfile={userProfile}
+                    myProfile={myProfile}
                 />
                 </>
             )}
