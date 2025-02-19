@@ -5,19 +5,20 @@ import ApiRequests from './ApiRequests';
 import { useNotification } from './NotificationContext';
 import { tournamentUpdate } from './redux/actions/gameActions';
 import { tourCustom } from './redux/actions/gameActions';
+import { createRoomId } from './utils';
 
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStart, myProfile }) => {
   const [socket, setSocket] = useState(null);
-  const [username, setUsername] = useState(null);
-  const [userid, setUserid] = useState(null);
   const getStartRef = useRef(false);
   const customUser = useSelector(state => state.tourCustomReducer.userData);
   const custom = useRef(customUser);
   const { showToastMessage, showConfirmModal } = useNotification();
   const userData = useSelector(state=> state.tournaReducer.userData);
   const latestUserData = useRef(userData);
+  const [userid, setUserid] = useState(0);
+  const [username, setUsername] = useState(null);
   const dispatch = useDispatch();
   const [timeoutId, setTimeoutId] = useState(null);
   const maxTries = 30;
@@ -25,27 +26,15 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const ws = useRef(null);
 
-  function createRoomId(str1, str2) {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth() + 1; // 월은 0부터 시작하므로 +1
-    const day = currentDate.getDate();
-    const hours = currentDate.getHours();
-    const minutes = currentDate.getMinutes();
-
-    const result = `${year}-${month}-${day}-${hours}${minutes}` + "-" + str1 + "-"  + str2;
-    return result;
-  }
-
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
+  
   useEffect(() => {
     if (myProfile) {
       setUserid(myProfile.userid);
       setUsername(myProfile.username);
     }
-  }, [myProfile])
-  
+  }, [myProfile]);
+
   useEffect(() => {
     custom.current = customUser;
   }, [customUser]);
@@ -79,7 +68,7 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
         setCurrentTries((prevCurrentTries) => {            
           console.log('timecheck:', prevCurrentTries)
           const newCurrentTries = prevCurrentTries + 1;
-          const newTimeoutId = setTimeout(() => timecheck(newCurrentTries), 5000); // 함수형 업데이트의 값을 사용
+          const newTimeoutId = setTimeout(() => timecheck(newCurrentTries), 5000);
           setTimeoutId(newTimeoutId);
           return newCurrentTries;
         });
@@ -118,25 +107,30 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
  }, [userData]);
   
   useEffect(() => {
-    if (username && userid) {
-      console.log('Websocket username:', username, 'Userid:', userid);
-      ws.current = new WebSocket(`wss://${window.location.host}/ws/channel/?username=${username}&userid=${userid}`);
+    if (!username || !userid) return
 
-      ws.current.onopen = () => {
-        console.log("WebSocket connected");
-        setSocket(ws.current);
-      };
-      
-      ws.current.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'refresh') {
+    console.log('Websocket username:', username, 'userid:', userid);
+    ws.current = new WebSocket(`wss://${window.location.host}/ws/channel/?username=${username}&userid=${userid}`);
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      setSocket(ws.current);
+    };
+    
+    ws.current.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      switch (data.type) {
+        case 'refresh':
           onRefresh();
-        } else if (data.type === 'selfRefresh') {
-          selfRefresh();  
-        } else if (data.type === 'new_friend_request') {
+          break;
+        case 'selfRefresh':
+          selfRefresh();
+          break;
+        case 'new_friend_request':
           showToastMessage(`${data.from_user_name}님으로부터 ${data.to_user_name}님에게 친구 요청이 왔습니다`, 3000, 'notice');
           selfRefresh();
-        } else if (data.type === 'send_new_friend_request') {
+          break;
+        case 'send_new_friend_request':
           if (data.status === 'friend_already_exists') {
             showToastMessage(`${data.to_user_name}님에게 이미 친구 요청을 보냈습니다.`, 3000, 'notice');
           }
@@ -144,7 +138,8 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
             showToastMessage(`${data.to_user_name}님에게 친구 요청을 보냈습니다.`, 3000, 'notice');
           }
           selfRefresh();
-        } else if (data.type === 'game_request') {
+          break
+        case 'game_request':
           if (data.status === 'me') {
             showToastMessage(`${data.to_user_name}님에게 게임 요청을 보냈습니다.`, 3000, 'notice');
           } else {
@@ -187,18 +182,16 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
                 async () => {
                   let nickname = prompt('사용 할 닉네임을 입력해주세요.');
                   try {   
-
+    
                     const response = await ApiRequests(`/api/validate/?nickname=${encodeURIComponent(nickname)}`, {
                         method: 'GET',
                     });
-                    // console.log("res",response);
                 } catch (error) {
                     alert('입력 형식에 오류가 있습니다.');
                     await ApiRequests('/api/status/me/state-update/',  {
                       method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }
                   })
                     nickname = null
-                    // console.error('닉네임 검증 실패:', error);
                 }
                   if (nickname === null) {
                     const tourcustommessage = { type: 'tour_custom', from_user_id: data.from_user_id, from_user_name: data.from_user_name,
@@ -231,7 +224,8 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
               );
             }
           }
-        } else if (data.type === 'game_response') {
+          break;
+        case 'game_response':
           if (data.result === 'reject') {
             const response_status = await ApiRequests('/api/status/me/state-update/',  {
               method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }})
@@ -257,7 +251,8 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
           } else {
             console.error('state-update Failed')
           }
-        } else if (data.type === 'tourna_match') {
+          break;
+        case 'tourna_match':
           for (let i = 0; i < data.users_ids.length; ++i) {
             dispatch(tournamentUpdate({start: 2}));
             if (data.custom) {
@@ -279,7 +274,8 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
               to_user_name: data.users_name[i + 1], to_user_id: data.users_ids[i + 1], room_name: roomname};
             ws.current.send(JSON.stringify(gamemessage2));
           }
-        } else if (data.type === 'tour_side_winner') {
+          break;
+        case 'tour_side_winner':
           let i;
           if (data.side === 'left') {
             dispatch(tournamentUpdate(0, {['left_win']: data.user_name, ['left_win_id']: data.winner}));
@@ -288,11 +284,14 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
             dispatch(tournamentUpdate(0, {['right_win']: data.user_name, ['right_win_id']: data.winner}));
             getStartRef.current = false;
           }
-        } else if (data.type === 'tourna_winner') {
+          break;
+        case 'tourna_winner':
           alert(`${data.user_name}님 승리 하였습니다!`);
-        } else if (data.type === 'tour_custom_reject') {
+          break;
+        case 'tour_custom_reject':
           showToastMessage(`${data.to_user_name}님 참여 거절`, 2000, 'notice');
-        } else if (data.type === 'tour_custom') {
+          break;
+        case 'tour_custom':
           showToastMessage(`${data.to_user_name}님 참여`, 2000, 'notice');
           dispatch(tourCustom(0, [{ user_id: data.to_user_id, tournament_name: data.nickname }]));
           await sleep(100)
@@ -303,24 +302,27 @@ export const WebSocketProvider = ({ children, onRefresh, selfRefresh, onGameStar
             const gamemessage = { type: 'tourna_match', matched_users: custom.current, custom: true }
             ws.current.send(JSON.stringify(gamemessage));
           }
-        } else if (data.type === 'custom_user_update') {
+          break;
+        case 'custom_user_update':
           dispatch(tourCustom(1));
           dispatch(tourCustom(0, data.userData))
-        }
-      };
-      
-      ws.current.onclose = () => {
-        console.log('WebSocket closed');
-      };
-      
-      return () => {
-        console.log('Cleaning up websocket connection');
-        if (ws.current.readyState === WebSocket.OPEN) {
-          ws.current.close();
-        }
-        setSocket(null);
-      };
-    }
+          break;
+        default:
+          console.log("Unknown message type:", data.type);
+      }
+    };
+    
+    ws.current.onclose = () => {
+      console.log('WebSocket closed');
+    };
+    
+    return () => {
+      console.log('Cleaning up websocket connection');
+      if (ws.current.readyState === WebSocket.OPEN) {
+        ws.current.close();
+      }
+      setSocket(null);
+    };
   }, [username, userid]);
 
   const sendMessage = (message) => {

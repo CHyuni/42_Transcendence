@@ -7,10 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 
 
-export default function TopBar({ userProfile, onPageChange }) {
+export default function TopBar({ myProfile, onPageChange }) {
     // const reduxProfileImage = useSelector(state => state.profileReducer.profileImage);
     const navigate = useNavigate();
-    const { profile_image_base64, profile_image, username } = userProfile || {};
+    const { profile_image_base64, profile_image, username } = myProfile || {};
     const { showToastMessage, showConfirmModal } = useNotification();
 
     const profileImage = profile_image_base64 
@@ -27,7 +27,7 @@ export default function TopBar({ userProfile, onPageChange }) {
           dropdownContent.style.display = 'block';
         }
     }
-    // console.log('userProfile:', userProfile);
+    // console.log('myProfile:', myProfile);
 
     const handleClick = async () => {
         const response = await ApiRequests('/api/user/get-status/');
@@ -51,7 +51,7 @@ export default function TopBar({ userProfile, onPageChange }) {
     };
 
     const handleMenuClick = (page) => {
-        onPageChange(page, userProfile); // 페이지 변경
+        onPageChange(page, myProfile); // 페이지 변경
         toggleDropdown(); // 드롭다운 닫기
     };
     return (

@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { tourCustom, tournamentUpdate } from './redux/actions/gameActions';
 
-export default function Game() {
+export default function Game({ myProfile }) {
     const { roomId } = useParams();
     const [gameResult, setGameResult] = useState(null);
     const [user1_score, setUser1Score] = useState(0);
@@ -16,7 +16,6 @@ export default function Game() {
     const { sendMessage } = useWebSocket();
     const { mode } = useSelector(state => state.modeReducer);
     const { userData } = useSelector(state=> state.tournaReducer);
-    const mydata = useSelector(state=> state.userReducer.userData);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -26,8 +25,8 @@ export default function Game() {
             setUser1Score(event.detail.user1_score);
             setUser2Score(event.detail.user2_score);
             if (user1_score == user2_score && gameResult === 'win') {
-                user1_score = mydata.userid == Number(window.player1) ? 3 : 0;
-                user2_score = mydata.userid == Number(window.player2) ? 3 : 0;
+                user1_score = myProfile.userid == Number(window.player1) ? 3 : 0;
+                user2_score = myProfile.userid == Number(window.player2) ? 3 : 0;
             }
         };
         window.addEventListener('gameEnd', handleGameEnd);
@@ -69,18 +68,18 @@ export default function Game() {
                     let winner;
                     let loser;
                     if (gameResult === 'win') {
-                        winner = mydata.userid;
-                        loser = window.player1 == mydata.userid ? window.player2 : window.player1;
+                        winner = myProfile.userid;
+                        loser = window.player1 == myProfile.userid ? window.player2 : window.player1;
                     } else {
-                        loser = mydata.userid;
-                        winner = window.player1 == mydata.userid ? window.player2 : window.player1;
+                        loser = myProfile.userid;
+                        winner = window.player1 == myProfile.userid ? window.player2 : window.player1;
                     }
                     let gametype = userData.match === true ? 'match' : 'custom';
                     let block_type = gametype === 'match' ? 1 : 2;
                     if (mode === 'Tournament Mod') {
                         let myidx;
                         for (let i = 0; i < 4; ++i) {
-                            if (userData[`user${i}`] === mydata.userid) {
+                            if (userData[`user${i}`] === myProfile.userid) {
                                 myidx = i;
                                 break;
                             }
@@ -167,7 +166,7 @@ export default function Game() {
                                     right_ids.push(userData[`user${i}`]);
                                 }
                                 dispatch(tournamentUpdate(1, {['left_win']: userData[`user${myidx}_name`], ['left_win_id']: winner}));
-                                sendMessage({ type: 'tour_win', user_name: userData[`user${myidx}_name`], users_ids: right_ids, side: 'left', winner: mydata.userid})
+                                sendMessage({ type: 'tour_win', user_name: userData[`user${myidx}_name`], users_ids: right_ids, side: 'left', winner: myProfile.userid})
                             }
                             else {
                                 let left_ids = [];
@@ -175,7 +174,7 @@ export default function Game() {
                                     left_ids.push(userData[`user${i}`]);
                                 }
                                 dispatch(tournamentUpdate(1, {['right_win']: userData[`user${myidx}_name`], ['right_win_id']: winner}));
-                                sendMessage({ type: 'tour_win', user_name: userData[`user${myidx}_name`], users_ids: left_ids, side: 'right', winner: mydata.userid})
+                                sendMessage({ type: 'tour_win', user_name: userData[`user${myidx}_name`], users_ids: left_ids, side: 'right', winner: myProfile.userid})
                             }
                         }
                     } else {

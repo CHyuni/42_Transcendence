@@ -41,18 +41,34 @@ export default function Body( { state, user, myProfile } ) {
     const dispatch = useDispatch();
     const matched = useSelector(state => state.tournaReducer.start);
     const customUser = useSelector(state => state.tourCustomReducer.userData);
-    const custom = useRef(customUser);
     const [customMatch, setCustomMatch] = useState(false);
     const { userData } = useSelector(state=> state.tournaReducer);
 
     useEffect(() => {
-        custom.current = customUser;
-        if (customUser[0]?.user_id) {
-            setCustomMatch(true);
-        } else {
-            setCustomMatch(false);
-        }
+        setCustomMatch(!!customUser[0]?.user_id);
     }, [customUser]);
+
+    const handleMatchCancel = async () => {
+        const confirmed = await showConfirmModal(
+            '매칭을 취소 하시겠습니까?',
+            async () => {
+                const response_status = await ApiRequests('/api/status/me/state-update/', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: 'available' }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (response_status === 'Not Found status')
+                    console.error('state-update Failed');
+                const response_delete = await ApiRequests('api/match/delete/', { method: 'DELETE' });
+                if (response_delete.message === 'no matching found')
+                    console.error('matching delete failed');
+                sendMessage({ type: 'refresh' });
+                alert('취소 완료');
+            },
+            () => { }
+        );
+        return confirmed;
+    };
 
     const handleGameStart = async () => {
         const response = await ApiRequests('/api/match/start/')
@@ -67,44 +83,14 @@ export default function Body( { state, user, myProfile } ) {
                     console.error('state-update Failed')
             sendMessage({ type: 'refresh' });
         } else if (response.status === 'already') {
-            showConfirmModal(
-                '매칭을 취소 하시겠습니까?',
-                async () => {
-                    const response_status = await ApiRequests('/api/status/me/state-update/', {
-                        method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});
-                    if (response_status === 'Not Found status')
-                            console.error('state-update Failed');
-                    const response_delete = await ApiRequests('api/match/delete/', { method: 'DELETE' });
-                    if (response_delete.message === 'no matching found')
-                        console.error('matching delete failed');
-                    sendMessage({ type: 'refresh' });
-                    alert('취소 완료');
-                },
-                () => {
-                }
-            )
+            handleMatchCancel();
         }
     };
 
     const handleTournament = async () => {
         const check = await ApiRequests('/api/match/check/');
         if (check.status === 'already') {
-            await showConfirmModal(
-                '매칭을 취소 하시겠습니까?',
-                async () => {
-                    const response_status = await ApiRequests('/api/status/me/state-update/', {
-                        method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});
-                    if (response_status === 'Not Found status')
-                            console.error('state-update Failed');
-                    const response_delete = await ApiRequests('api/match/delete/', { method: 'DELETE' });
-                    if (response_delete.message === 'no matching found')
-                        console.error('matching delete failed');
-                    sendMessage({ type: 'refresh' });
-                    alert('취소 완료');
-                },
-                () => {
-                }
-            )
+            handleMatchCancel();
             return;
         }
         const temp = await showConfirmModal(
@@ -145,22 +131,7 @@ export default function Body( { state, user, myProfile } ) {
     }
 
     const handlecancle = async () => {
-        await showConfirmModal(
-            '매칭을 취소 하시겠습니까?',
-            async () => {
-                const response_status = await ApiRequests('/api/status/me/state-update/', {
-                    method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});
-                if (response_status === 'Not Found status')
-                        console.error('state-update Failed');
-                const response_delete = await ApiRequests('api/match/delete/', { method: 'DELETE' });
-                if (response_delete.message === 'no matching found')
-                    console.error('matching delete failed');
-                sendMessage({ type: 'refresh' });
-                alert('취소 완료');
-            },
-            () => {
-            }
-        )
+        handleMatchCancel();
         dispatch(tourCustom(1));
     }
 
@@ -190,12 +161,6 @@ export default function Body( { state, user, myProfile } ) {
                         )}
                         
                     </div>
-                    {
-                        user !== "mypage" &&
-                        user !== "stats" &&
-
-                        <></>
-                    }
                     {
                         user === "none"
                         ?

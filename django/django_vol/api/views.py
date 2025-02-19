@@ -90,6 +90,7 @@ class StateUpdateViewSet(viewsets.ModelViewSet):
 				profile = self.get_queryset().get(pk=pk)
 			return Response({'message': profile.status, 'mode': profile.mode}, status=status.HTTP_200_OK)
 		except Exception as e:
+			logger.error(f"Error get-state: {e}", exc_info=True)
 			return Response({'error': f'{str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	@action(detail=True, methods=['patch'], url_path='state-update')

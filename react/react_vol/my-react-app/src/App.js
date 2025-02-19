@@ -156,7 +156,7 @@ function App() {
           onGameStart={(roomId) => { setGameRoomId(roomId); setGameStartCount(prev => prev + 1)}} myProfile={myProfile}>
           {isLoggedIn ? (
             <Routes>
-              <Route path="/game/:roomId" element={<Game />} />
+              <Route path="/game/:roomId" element={<Game myProfile={myProfile}/>} />
               <Route path="/verify-2fa" element={<TwoFactorAuth />} />
               <Route path="/sidebar" element={<SideBar refresh={refreshCount} selfRefresh={selfRefreshCount} selfRefreshbtn={setSelfRefreshCount}
                 gameStartCount={gameStartCount} gameRoomId={gameRoomId} setGameRoomId={setGameRoomId} setGameStartCount={setGameStartCount} myProfile={myProfile}/>} />

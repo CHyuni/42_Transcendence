@@ -5,7 +5,7 @@ import './ChatBox.css';
 import { useWebSocket } from "./WebSocketContext";
 import ApiRequests from "./ApiRequests";
 
-export default function ChatBox({ index, name , roomName}) {
+export default function ChatBox({ index, name , roomName, myProfile }) {
     // console.log("name", roomName);
     const dispatch = useDispatch();
     const [position, setPosition] = useState({ x: 390, y: 550 }); // 초기 위치
@@ -13,7 +13,6 @@ export default function ChatBox({ index, name , roomName}) {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const userData = useSelector(state => state.userReducer.userData);
 
     const wsRef = useRef(null);
     const chatBoxRef = useRef(null);
@@ -33,10 +32,10 @@ export default function ChatBox({ index, name , roomName}) {
                 const response = await ApiRequests(`/api/chatroommessage/?room_name=${roomName}`, {
                     method: 'GET'
                 });
-                // console.log("Fetched messages:", userData);
+                // console.log("Fetched messages:", myProfile);
     
-                // userData[0]를 문자열로 변환
-                const userIdStr = String(userData.userid);
+                // myProfile[0]를 문자열로 변환
+                const userIdStr = String(myProfile.userid);
     
                 const previousMessages = response.map(msg => ({
                     id: msg.id,
@@ -55,7 +54,7 @@ export default function ChatBox({ index, name , roomName}) {
         if (roomName) {
             fetchPreviousMessages();
         }
-    }, [roomName, userData]);
+    }, [roomName, myProfile]);
     useEffect(() => {
         if (roomName) {
             wsRef.current = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);

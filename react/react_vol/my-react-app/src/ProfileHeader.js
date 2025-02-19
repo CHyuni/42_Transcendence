@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ProfileHeader = ({ meProfile, handleClose, related, blocked, toggleDropdown }) => {
+const ProfileHeader = ({ meProfile, handleClose, related, blocked, toggleDropdown, handleChat, handleFriendRequest, handleFriendBlocked, handleUnBlock }) => {
     return (
         <div className="profile-image-header">
             {meProfile ? (

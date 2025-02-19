@@ -82,6 +82,7 @@ const Friends = React.memo(function Friends({ isBlock, friends = [], myProfile }
                     name={currentFriend.name}
                     roomName = {roomName}
                     texts={currentFriend.chats || []}  // 채팅 기록이 없다면 빈 배열
+                    myProfile={myProfile}
                 /> 
                 : null
             }
