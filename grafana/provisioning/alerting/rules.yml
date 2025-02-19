@@ -1,0 +1,25 @@
+apiVersion: 1
+groups:
+  - name: Example-Alerts
+    folder: Alerts
+    interval: 1m
+    rules:
+      - alert: HighCPUUsage
+        title: CPU Usage Alert
+        uid: high_cpu_alert
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              intervalMs: 1000
+              maxDataPoints: 43200
+        condition: A
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High CPU usage detected on instance {{ $labels.instance }}"

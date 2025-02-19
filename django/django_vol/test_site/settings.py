@@ -15,23 +15,35 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import environ
 
+env = environ.Env()
+environ.Env.read_env()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-75*dh@hau$*z$=$v2y&43+mwz!818azja355j3%%!1dj!rbx=+'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+ENCRYPTION_KEY = env('DJANGO_ENCRYPTION_KEY')
+CONTRACT_ADDRESS = env('DJANGO_CONTRACT_ADDRESS')
+WEB3_PROVIDER_URL = env('DJANGO_WEB3_PROVIDER_URL')
+ADMIN_PRIVATE_KEY = env('DJANGO_ADMIN_PRIVATE_KEY') 
 
+SERVER_URL = f'http://{env.str("SERVER_IP")}'
+SERVER_URL_WITH_DJANGO_PORT = f'{SERVER_URL}:8080'
+REDIRECT_URL = env('REDIRECT_URL')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.12.9.1', 'localhost', '127.0.0.1' , '211.194.206.182', '10.12.8.3']
+ALLOWED_HOSTS = [env.str("SERVER_IP"),     'localhost',
+    '127.0.0.1',
+    
+        'django',  # 추가
+    'django:8000',]  # 추가
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://10.12.8.3:8080',
-    'http://10.12.9.1:8080',
-	'http://211.194.206.182:8080',
-	'http://localhost:8080',
+    # SERVER_URL_WITH_DJANGO_PORT,
+    f'https://{env.str("SERVER_IP")}:8081',
 ]
 
 # Application definition
@@ -42,6 +54,9 @@ INSTALLED_APPS = [
     'chat',
     'accounts',
     'game',
+    'channel',
+    'totp',
+    'web3_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,9 +67,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'corsheaders',
+    'rest_framework_simplejwt',
+    'django_prometheus',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,12 +82,31 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'test_site.middleware.JWTAuthMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware', 
 ]
+
+
+CSP_DEFAULT_SRC = ("'self'",) # 모든 리소스 파일의 기본 정책
+
+CSP_SCRIPT_SRC = (# 자바스크립트 정책, 허용한 도메인에서만 스크립트 로드 가능 
+    "'self'",
+    "https://cdn.jsdelivr.net", 
+)
+CSP_STYLE_SRC = (
+    "'self'",
+    "https://cdn.jsdelivr.net",  # Bootstrap 스타일 허용
+)
+
+# XSS 보호 설정 활성화, 응답헤더에 X-XSS-Protection: 1; mode=block을 추가
+SECURE_BROWSER_XSS_FILTER = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://10.12.8.3:3000"
+    f'{SERVER_URL}:3000',
 ]
-
+CORS_ALLOW_CREDENTIALS = True 
+# CSRF_COOKIE_SECURE = True  # HTTPS 사용시
+# CSRF_COOKIE_HTTPONLY = True  # JavaScript에서 쿠키 접근 방지
 # CORS_ALLOWED_METHODS = [
 # ]
 
@@ -111,23 +149,20 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-import environ
 
-env = environ.Env()
-environ.Env.read_env()
 
 CLIENT_ID = env('CLIENT_ID')
 CLIENT_SECRET = env('CLIENT_SECRET')
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': env('POSTGRES_DB'),
         'USER':  env('POSTGRES_USER'),
         'PASSWORD':  env('POSTGRES_PASSWORD'),
         'HOST': 'postgres',
         'PORT': '5432',
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -166,9 +201,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/nginx/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_URL = '/staticfiles/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -184,42 +221,79 @@ OAUTH2_PROVIDER = {
 }
 
 SESSION_COOKIE_HTTPONLY = True
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 36000
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ]
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
 }
 
 LOGGING = {
-   'version': 1,
-   'disable_existing_loggers': False,
-    'formatters':{ # 추가
-         'simple':{
-            'format':'%(levelname)s %(asctime)s %(message)s'
-        }
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
     },
     'handlers': {
-       'file': {
+        'file': {
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': './app.log',  # 프로젝트 내부의 상대 경로
-            'formatter': 'simple'
-       },
+            'filename': '/home/django.log',
+            'formatter': 'standard',
+        },
     },
     'loggers': {
+        '': {  # 루트 로거 설정
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'django': {
             'handlers': ['file'],
             'level': 'INFO',
+            'propagate': False,
         },
-       '': {
+        'django_prometheus': {
             'handlers': ['file'],
-            'level': 'INFO'
-        }
-    },
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
 }
+
+# SECURE_SSL_REDIRECT = True  # HTTP를 HTTPS로 리다이렉트
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # 프록시 서버의 원래 요청이 https였다는것을 알려주기 위함
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'
+CELERY_RESULT_BACKEND = "django-db"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',  # 데이터베이스 번호 변경 (0은 Celery가 사용 중)
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'

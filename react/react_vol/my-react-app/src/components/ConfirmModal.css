@@ -1,0 +1,56 @@
+/* ConfirmModal.css */
+.modalContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #65cbd8;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    width: 280px;
+    height: 190px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modalMessage {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    white-space: pre-line;
+  }
+  
+  .buttonContainer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .confirmButton {
+    padding: 8px 20px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .cancelButton {
+    padding: 8px 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+  }
+
+  .modalInput {
+    margin-bottom: 10px; /* 입력 필드 아래 여백 설정 */
+    padding: 8px; /* 내부 여백 설정 */
+    border: 1px solid #ddd; /* 테두리 설정 */
+    border-radius: 4px; /* 둥근 테두리 설정 */
+    width: 100%; /* 컨테이너 너비에 맞추기 */
+    box-sizing: border-box; /* padding이 너비에 영향을 주지 않도록 설정 */
+}

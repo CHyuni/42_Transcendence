@@ -1,0 +1,150 @@
+.top-bar {
+    position: fixed;
+    width: 80%;
+    height: 16%;
+    left: 20%;
+    background: linear-gradient(45deg, #27323d, #3e035e);
+    display: flex;
+    align-items: center;
+    /* background-color: #27323d */
+
+}
+
+.home-logo {
+    position: inherit;
+    left: 20%;
+    /* top: 1%; */
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    width: 140px;
+    cursor: pointer;
+}
+
+.home-welcome {
+    position: relative;
+    left: 12%;
+    color: grey;
+    width: 50%;
+    font-size: 4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.home-welcome::before {
+    content: "42 transcendence"; /* 가상 요소 생성 */
+    position: absolute;
+    left: 0.2%;
+    top: 2%;
+    color: white;
+    /* background-color: #06036d; */
+    width: 90%;
+    font-size: 4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    z-index: -1;
+    pointer-events: none; /* 클릭 불가 */
+  }
+
+  .user-profile-container {
+    position: fixed;
+    display: flex;
+    width: 200px;
+    height: 140px;
+    /* background-color: aqua; */
+    padding: 3px 10px;
+    top: 0;
+    right: 0;
+  }
+
+  .user-profile {
+    display: flex;
+    /* background-color: rgb(183, 255, 0); */
+    justify-content: space-between;
+    padding: 1px 10px;
+    align-items: center;
+    width: 99.8%;
+    cursor: pointer;
+  }
+
+  .user-profile:hover {
+    text-decoration: underline;
+    text-decoration-color: azure;
+    text-decoration-thickness: 2px;
+    transform: scale(1.03);
+  }
+
+  .user-img-container {
+    display: flex;
+    /* background-color: azure; */
+    justify-content: center;
+    align-items: center;
+    width: 35%;
+    padding: 3px;
+  }
+
+  .user-img {
+    border-radius: 100%;
+    /* border: 1px solid rgb(253, 224, 224); */
+    width: 50px;
+    cursor: pointer;
+  }
+ 
+  /* .user-img:hover {
+    transform: scale(1.1);
+  } */
+
+  .user-content-container {
+    width: 64%;
+    z-index: 3;
+    color: white;
+    justify-content: center;
+    margin-left: 7px;
+    /* background-color: blue; */
+  }
+
+  .user-name {
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .user-dropdown-content {
+    display: none; /* 기본적으로 숨김 */
+    position: absolute;
+    top: 60%;
+    right: 5%;
+    /* background-color: #f9f9f9; */
+    /* background-color: #0056b3; */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 1px;
+    border-radius: 5px;
+    z-index: 99;
+  }
+
+  .user-dropdown-li {
+    display: block;
+    /* display: flex; */
+    color: black;
+    padding: 6px 24px;
+    list-style-type: none;
+    border-radius: 4px;
+    /* background: #3993f4; */
+    background: white;
+    cursor: pointer;
+    border-bottom: 2px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    justify-content: center;
+    font-weight: 500;
+    line-height: 1.5;
+    width: 110px;
+    z-index: 99;
+    /* opacity: 90%; */
+  }
+
+  .user-dropdown-li:hover {
+    background: #fef5f5;
+    font-weight: 600;
+  }

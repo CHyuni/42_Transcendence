@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+import pyotp
 # Create your models here.
 
 class Profile(models.Model):
@@ -9,9 +9,18 @@ class Profile(models.Model):
 		on_delete=models.CASCADE, related_name='profile'
 	)
 	is_online = models.BooleanField(default=False)
-	image = models.URLField(null=True, blank=True)
-	win_count = models.IntegerField(default=0)
-	lose_count = models.IntegerField(default=0)
+	profile_image = models.URLField(null=True, blank=True)
+	casual_win = models.IntegerField(default=0)
+	casual_lose = models.IntegerField(default=0)
+	tournament_win = models.IntegerField(default=0)
+	tournament_lose = models.IntegerField(default=0)
+	rating = models.IntegerField(default=800)
+	top_rating = models.IntegerField(default=800)
+	mode = models.CharField(max_length=20, null=True, blank=True, default='Casual Mod')
+	about_me = models.CharField(max_length=128, null=True, blank=True)
+	profile_image_file = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+	winning = models.IntegerField(default=0)
+	last_logins = models.DateTimeField(auto_now=True)
 
 	STATUS_CHOICES = [
         ("available", "Available"),
@@ -21,7 +30,7 @@ class Profile(models.Model):
     ]
 
 	status = models.CharField(
-		max_length=20,
+		max_length=20,	
 		choices=STATUS_CHOICES,
 		default="offline"
 	)
@@ -29,22 +38,4 @@ class Profile(models.Model):
 	def __str__(self):
 		return f"{self.user.username}'s Profile"
 
-class Friends(models.Model):
-	user = models.ForeignKey(
-		User,
-		on_delete=models.CASCADE, related_name='friends'
-	)
-	friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends_of')
 
-	def __str__(self):
-		return f'{self.user.username} - {self.friend.username}'
-
-class Blocked(models.Model):
-	user = models.ForeignKey(
-		User,
-		on_delete=models.CASCADE, related_name='blocked'
-	)
-	block_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_by')
-
-	def __str__(self):
-		return f'{self.user.username} - {self.block_user.username}'

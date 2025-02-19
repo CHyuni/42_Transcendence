@@ -1,0 +1,296 @@
+.profile-container {
+    position: fixed;
+    background-color:#97c8f3;
+    width: 25%;
+    height: 37%;
+    z-index: 4;
+    top: 30%;
+    left: 37%;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.profile-image-container {
+    background-color: grey;
+    width: 45%;
+    /* opacity: 50%; */
+    /* border-radius: ; */
+}
+
+.profile-image-header {
+    background-color: #97c8f3;
+    border-radius: 8px;
+    width: 100%;
+    height: 10%;
+    /* border: 1px solid grey; */
+}
+
+.profile-header {
+    padding: 5px 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    position: relative;
+    /* display: inline-block; */
+}
+
+.profile-main {
+    display: flex;
+}
+
+.profile-image-box {
+    padding: 40px 10px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(222, 231, 250);
+
+    /* background-color: rgb(172, 244, 244); */
+    border: 2px solid grey;
+    border-left: none;
+    border-right: 0px;
+    /* border-radius: 4px; */
+}
+
+.profile-image {
+    width: 130px;
+    height: 130px;
+    border-radius: 100%;
+    border: 2px solid white;
+}
+
+.profile-image-userid {
+    font-size: 20px;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+}
+
+.profile-image-login {
+    font-size: 13px;
+    font-family:'Times New Roman', Times, serif;
+    color: gray;
+    font-weight: bold;
+}
+
+#profile-close {
+    position: relative;
+    left: 93.5%;
+    bottom: 100%;
+    background-color: transparent;
+    color: inherit;    
+    border: none;   
+}
+
+.profile-content {
+    background-color: rgb(222, 231, 250);
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+    border: solid 2px grey;
+    border-right: none;
+    border-left: 1px solid snow;
+    /* border-radius: 4px; */
+}
+
+.profile-content-box-top {
+    /* opacity: 50%; */
+    display: flex;
+    background: linear-gradient(45deg, gold, rgb(249, 186, 186));
+    border: 0.5px solid grey;
+    border-left: 0.2px solid grey;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    box-shadow: 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+#profile-rating {
+    width: 50%;
+}
+
+.profile-rating-top {
+    font-size: large;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    border-bottom: 2px solid grey;
+    padding: 2px 5px;
+    padding-bottom: 1px;
+    /* margin: auto; */
+}
+
+.profile-content-box {
+    /* opacity: 50%; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid grey;
+    border-left: 1px solid white;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    padding: 3px 5px;
+}
+
+.profile-record-top {
+    font-size: 1.1rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    border-bottom: 2px solid grey;
+    padding: 2px 5px;
+    padding-bottom: 1px;
+}
+
+.profile-record {
+    font-size: 1rem;
+    /* font-size: clamp(3px, 4vw, 1rem); */
+    font-weight: 400;
+    background: linear-gradient(45deg, #1a12fa, #000000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-bottom {
+    display: flex;
+}
+
+.btn-container {
+    display: grid;
+    justify-content: center;
+    padding-top: 2px;
+    width: 100%;
+}
+
+.btn-container button {
+    padding: 2px 12px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 140px;
+}
+
+.btn-container button:hover {
+    background-color: #d41010;
+}
+
+.add-btn {
+    border: 3px solid red;
+    background-color: #4caf50; /* 초록색 */
+    border-radius: 12px;
+    margin: auto;
+    margin-left: 1px;   
+    width: 34px;
+    height: 29px;
+    display: flex;
+    align-items: center;
+  }
+
+  .add-btn:hover {
+    background-color: #45a049; /* 어두운 초록색 */
+  }
+
+  .delete-btn {
+    background-color: #f44336; /* 빨간색 */
+    border-radius: 12px;
+    margin: auto;
+    margin-left: 1px;   
+    width: 34px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+
+  .delete-btn:hover {
+      background-color: #d32f2f; /* 어두운 빨간색 */
+  }
+    
+  .block-btn {
+    background-color: red;
+    border: 3px solid #741212;
+    border-radius: 12px;
+    margin: auto;
+    margin-left: 1px;
+    width: 34px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+
+  .block-btn:hover {
+    background-color: #741212;
+  }
+
+  .unblock-btn {
+    background-color: #4caf50;
+    border: 3px solid #106813;
+    border-radius: 12px;
+    margin: auto;
+    margin-left: 1px;
+    width: 34px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+
+  .unblock-btn:hover {
+    background-color: #45a049; /* 어두운 초록색 */
+  }
+
+  .icon {
+    width: 18px;
+    height: 20px;
+  }
+
+  .profile-icon {
+    width: 28px;
+    cursor: pointer;
+  }
+
+  .profile-icon:hover {
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+    /* background: red; */
+    width: 28px;
+    cursor: pointer;
+  }
+
+
+  .dropdown-content {
+    display: none; /* 기본적으로 숨김 */
+    position: absolute;
+    top: 90%;
+    /* background-color: #f9f9f9; */
+    /* background-color: #0056b3; */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 1px;
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+  .dropdown-li {
+    display: block;
+    /* display: flex; */
+    color: black;
+    padding: 3px 16px;
+    list-style-type: none;
+    border-radius: 4px;
+    background: #3993f4;
+    cursor: pointer;
+    border-bottom: 2px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    justify-content: center;
+    opacity: 90%;
+  }
+
+  .dropdown-li:hover {
+    background: #F44336;
+  }

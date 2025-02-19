@@ -1,0 +1,250 @@
+.body {
+    position: absolute;
+    width: 80%;
+    height: 84%;
+    top: 16%;
+    left: 20%;
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+}
+
+.game-button-container {
+    position: absolute;
+    left: 5%;
+    top: 10%;
+}
+
+.game-button {
+    font-size: 3rem;
+    padding: 3px 40px;
+    border-radius: 50px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    background: rgb(10, 207, 20);
+    transition: transform 0.3s ease;
+    border: 2px solid cadetblue;
+}
+
+.game-button-p {
+    margin: 0;
+}
+
+.game-button:hover {
+    background-color: rgb(4, 226, 15);
+}
+
+.game-button:hover p {
+    animation: bounce 0.6s ease-in-out 3;
+}
+
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-4px); } /* 위로 이동 */
+    100% { transform: translateY(0); } /* 원래 위치로 복귀 */
+}
+
+.search-container {
+    display: flex;
+    position: inherit;
+    top: 30%;
+    min-width: 650px;
+    min-height: 60px;   
+}
+
+.search-btn {
+    position: relative;
+    right: 9%;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    padding: 10px;
+}
+
+.search-btn:hover {
+    background-color: aliceblue;
+}
+
+.search {
+    width: 100%;
+    border-radius: 30px;
+    padding-left: 30px;
+    font-size: 20px;
+    background-color: aliceblue;
+    border: 2px solid black;
+}
+
+.team-info-container {
+    position: inherit;
+    width: 100%;
+    bottom: 0%;
+    min-height: 270px;
+}
+
+.team-container {
+    width: 100%;
+    display: flex;
+}
+
+.team {
+    margin: auto;
+    display: flex;
+    box-shadow: 3px 1px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    padding: 4px 12px;
+    border: 1px solid rgb(78, 78, 78);
+    border-right: none;
+    border-left: 0.1px dotted rgb(78, 78, 78);
+}
+
+.team-header {
+    display: flex;
+    justify-content: center;
+    font-size: large;
+    font-weight: 700;
+}
+
+.team-profile-image {
+    width: 180px;
+    height: 170px;
+    border-radius: 100%;
+}
+
+.team-profile {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.info {
+    background: red;
+}
+
+.nickname-list-container {
+    position: absolute;
+    top: 100%;
+    width: 80%;
+    flex-direction: column;
+    max-height: 120px;
+    overflow-x: hidden;
+    display: none;
+}
+
+.nickname-list {
+    background-color: aliceblue;
+    font-size: 17px;
+    list-style: none;
+    border-bottom: 1px solid black;
+    padding: 5px 20px;
+    opacity: 100%;
+}
+
+.no-user-container, .user-container {
+    position: absolute;
+    top: 43%;
+    left: 26%;
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+    border: 1px solid burlywood;
+    border-radius: 20px;
+    padding: 60px 50px;
+}
+
+.search-user-container {
+    display: flex;
+}
+
+.no-user-content {
+    display: flex;
+    justify-content: center;
+}
+
+#search-profile {
+    width: 40%;
+}
+
+#search-profile-content {
+    display: flex;
+    justify-content: center;
+    font-size: 14px;
+    text-align: center;
+}
+
+.tournament-head {
+    margin-top: 50px;
+    /* margin-left: 450px; */
+    margin-bottom: 100px;
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgb(0, 0, 0);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.vs {
+    font-size: 1.5rem;
+    text-align: center;
+    width: 70px;
+    display: block;
+}
+
+.user-box {
+    background: #f5f5f5;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* gap: 20px; */
+    position: relative;
+    width: 200px;
+    margin: 20px;
+  }
+
+.tournament-container span {
+    font-weight: bold;
+    display: block;
+}
+
+.match-table {
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    align-items: center;
+}
+
+.win-table {
+    display: flex;
+    align-items: center;
+    margin-top: 65px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.tournament-container {
+    display: flex;
+    gap: 40px;
+    
+}
+
+.left-match {
+    display: flex;
+    flex-direction: column;
+}
+
+.right-match {
+    display: flex;
+    flex-direction: column;
+}

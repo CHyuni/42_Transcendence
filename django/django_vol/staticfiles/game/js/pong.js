@@ -94,7 +94,7 @@ function game(){
 
 
 const roomName = document.getElementById('room-name').textContent;
-const gameSocket = new WebSocket(`ws://${window.location.host}/ws/pong/${roomName}/`);
+const gameSocket = new WebSocket(`wss://${window.location.host}/ws/pong/${roomName}/`);
 let gameStarted = false;
 let loop;
 

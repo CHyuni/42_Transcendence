@@ -1,0 +1,179 @@
+.stats-outer-container {
+    position: absolute;
+    background: linear-gradient(135deg, rgb(248, 56, 56), rgb(79, 79, 247));
+    width: 90%;
+    height: 70%;
+    top: 23%;
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+    padding: 0 60px;
+    border-radius: 6px;
+}
+
+.stats-header-container {
+    margin-top: 10px;
+}
+
+.stats-header {
+    font-weight: bold;
+    font-size: 2.5rem;
+    /* color: white; */
+}
+
+.stats-body-container {
+    margin-top: 15px;
+    overflow-y: auto; /* 수직 스크롤을 활성화 */
+    max-height: 400px; /* 원하는 최대 높이 설정 (예시) */
+}
+
+.stats-row {
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid black;
+    /* border: 1px solid goldenrod; */
+    height: 45px;
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+    border-radius: 4px;
+}
+
+.stats-row:hover {
+    background-color: rgb(255, 187, 187);
+}
+
+#stats-win {
+    /* background-color: green; */
+}
+
+#stats-lose {
+    /* background-color: red; */
+}
+
+.stats-user-container {
+    display: flex;
+    justify-content: center;
+    /* background-color: aqua; */
+    padding: 0 30px;
+    /* justify-content: space-between; */
+    align-items: center;
+}
+
+.stats-arrow {
+    width: 12px;
+    margin: 0 5px;
+}
+
+.stats-versus {
+    width: 30px;
+}
+
+.stathead-row {
+    background-color: white;
+    border: 1px solid black;
+    /* border: 1px solid goldenrod; */
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.stathead-user-container {
+    width: 20%;
+    background-color: yellow;
+    text-align: center;
+}
+
+.stathead-rating-container {
+    margin-left: 200px;
+    width: 20%;
+    background-color: green;
+    text-align: center;
+    font-weight: bold;
+}
+
+.stathead-mode-container {
+    width: 20%;
+    background-color: red;
+    margin: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.stathead-result-container {
+    width: 20%;
+    background-color: blue;
+    margin: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.stats-user {
+    /* margin: 10px; */
+}
+
+.stathead {
+    margin: 10px;
+    margin-left: 0px;
+}
+
+.stats-user-img {
+    width: 35px;
+    border-radius: 100%;
+}
+
+.stats-user-id {
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.stats-date-container {
+
+}
+
+.stats-date {
+    font-size: 13px;
+    color: blue;
+}
+
+.stats-rating-container {
+    display: flex;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    padding: 0 60px;
+    /* text-align: center; */
+    /* background-color: bisque; */
+    margin-left: 60px;
+}
+
+.stats-rating {
+    font-size: 15px;
+}
+
+.rating-change {
+    color: green;
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+.stats-mode-container {
+    /* display: flex; */
+    /* margin-left: -150px; */
+    font-weight: bold;
+    margin: 90px;
+    /* color: whitesmoke; */
+}
+
+.stats-result-container {
+    /* display: flex; */
+    /* margin-left: -100px; */
+    margin: 90px;
+    font-weight: bold;
+}
+
+.stats-result {
+    font-size: 18px;
+}

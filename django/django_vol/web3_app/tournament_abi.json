@@ -1,0 +1,207 @@
+[
+	{
+	"anonymous": false,
+	"inputs": [
+	{
+	"indexed": true,
+	"internalType": "uint256",
+	"name": "timestamp",
+	"type": "uint256"
+	}
+	],
+	"name": "GameDataReset",
+	"type": "event"
+	},
+	{
+	"anonymous": false,
+	"inputs": [
+	{
+	"indexed": true,
+	"internalType": "int256",
+	"name": "player1",
+	"type": "int256"
+	},
+	{
+	"indexed": true,
+	"internalType": "int256",
+	"name": "player2",
+	"type": "int256"
+	},
+	{
+	"indexed": false,
+	"internalType": "enum Tournament.GameType",
+	"name": "gameType",
+	"type": "uint8"
+	},
+	{
+	"indexed": false,
+	"internalType": "enum Tournament.GameMode",
+	"name": "gameMode",
+	"type": "uint8"
+	}
+	],
+	"name": "NewGame",
+	"type": "event"
+	},
+	{
+	"inputs": [
+	{
+	"internalType": "int256",
+	"name": "player1",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player2",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "p1Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "p2Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "enum Tournament.GameMode",
+	"name": "mode",
+	"type": "uint8"
+	},
+	{
+	"internalType": "enum Tournament.GameType",
+	"name": "gameType",
+	"type": "uint8"
+	}
+	],
+	"name": "createGame",
+	"outputs": [],
+	"stateMutability": "nonpayable",
+	"type": "function"
+	},
+	{
+	"inputs": [],
+	"name": "getAllGames",
+	"outputs": [
+	{
+	"components": [
+	{
+	"internalType": "int256",
+	"name": "player1",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player2",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player1Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player2Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "winner",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "loser",
+	"type": "int256"
+	},
+	{
+	"internalType": "enum Tournament.GameMode",
+	"name": "mode",
+	"type": "uint8"
+	},
+	{
+	"internalType": "enum Tournament.GameType",
+	"name": "gameType",
+	"type": "uint8"
+	}
+	],
+	"internalType": "struct Tournament.Game[]",
+	"name": "",
+	"type": "tuple[]"
+	}
+	],
+	"stateMutability": "view",
+	"type": "function"
+	},
+	{
+	"inputs": [
+	{
+	"internalType": "int256",
+	"name": "playerId",
+	"type": "int256"
+	}
+	],
+	"name": "getPlayerGames",
+	"outputs": [
+	{
+	"components": [
+	{
+	"internalType": "int256",
+	"name": "player1",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player2",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player1Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "player2Score",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "winner",
+	"type": "int256"
+	},
+	{
+	"internalType": "int256",
+	"name": "loser",
+	"type": "int256"
+	},
+	{
+	"internalType": "enum Tournament.GameMode",
+	"name": "mode",
+	"type": "uint8"
+	},
+	{
+	"internalType": "enum Tournament.GameType",
+	"name": "gameType",
+	"type": "uint8"
+	}
+	],
+	"internalType": "struct Tournament.Game[]",
+	"name": "",
+	"type": "tuple[]"
+	}
+	],
+	"stateMutability": "view",
+	"type": "function"
+	},
+	{
+	"inputs": [],
+	"name": "resetAllGameData",
+	"outputs": [],
+	"stateMutability": "nonpayable",
+	"type": "function"
+	}
+   ]

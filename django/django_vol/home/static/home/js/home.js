@@ -35,14 +35,14 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	
 	function login() {
-		const clientId = 'u-s4t2ud-2f36542895ec170f78a3b16b336312f13826f4f1cc5a856127e0bd6119deefcd';
-		const redirectUri = encodeURIComponent('http://10.12.8.3:8080/callback/');
+		const clientId = process.env.REACT_APP_CLIENT_ID;
+		const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URL);
 		const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
 		window.location.href = authUrl;
 	}
 
 	function logout() {
-		fetch('/logout/', {
+		fetch('/api/oauth/logout/', {
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': getCookie('csrftoken')

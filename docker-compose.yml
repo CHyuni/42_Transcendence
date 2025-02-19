@@ -1,95 +1,373 @@
-version: '3.8'
+  services:
+    django:
+      build: ./django
+      image: django
+      container_name: django
+      env_file: .env
+      networks:
+        - transcendence
+      volumes:
+        - django_vol:/home
+        - root_vol:/st
+      depends_on:
+        - postgres
+      healthcheck:
+        test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
+        interval: 5s
+        timeout: 3s
+        retries: 3
 
-services:
-  django:
-    build: ./django
-    image: django
-    container_name: django
-    env_file: .env
-    networks:
-      - transcendence
-    volumes:
-      - django_vol:/home
-      - root_vol:/st
-    ports:
-        - "8000:8000"
+    nginx:
+      build: ./nginx
+      image: nginx
+      container_name: nginx
+      env_file: .env
+      networks:
+        - transcendence
+      volumes:
+          - nginx_conf:/etc/nginx/conf.d
+          - nginx_log:/var/log/nginx
+          - static_vol:/home/staticfiles
+          - build_vol:/home/build
+      ports:
+        - "8080:8080"
+        - "8081:8081"
+      depends_on:
+        react:
+          condition: service_started
+        django:
+          condition: service_healthy
+        elastic:
+          condition: service_healthy
+        logstash:
+          condition: service_healthy
+        kibana:
+          condition: service_healthy
+        prometheus:
+          condition: service_healthy
+        grafana:
+          condition: service_healthy
+
+    postgres:
+      image: postgres:17-alpine3.20
+      container_name: postgres
+      env_file: .env
+      networks:
+        - transcendence
+      volumes:
+        - postgres_vol:/var/lib/postgresql/data
+        - postgres_log:/var/log/postgresql
+        - root_vol:/home
+      expose:
+        - "5432"
+
+    redis:
+      image: redis:7.4.1-alpine3.20
+      container_name: redis
+      volumes:
+        - ./redis/redis.conf:/etc/redis/redis.conf 
+        - redis_log:/var/log/redis
+        - ./redis/redis.sh:/redis.sh
+      entrypoint: ["/bin/sh", "/redis.sh"]
+      networks:
+        - transcendence
+      expose:
+        - "6379"
+
+    react:
+      container_name: react
+      image: react
+      env_file: .env
+      build:
+        dockerfile: ./react/Dockerfile
+      volumes:
+        - react_vol:/var/
+
+    elastic:
+      image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+      container_name: elastic
+      env_file: .env
+      command: >
+        /bin/bash -c "
+          /usr/share/elasticsearch/init_kibana.sh &
+          /usr/local/bin/docker-entrypoint.sh"
+      volumes:
+        - elastic_vol:/usr/share/elasticsearch/data
+        - ./elastic/snapshots:/mnt/snapshots 
+        - ./elastic/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        - ./elastic/init_kibana.sh:/usr/share/elasticsearch/init_kibana.sh
+      expose:
+        - "9200"
+      networks:
+        - transcendence
+      healthcheck:
+        test: ["CMD", "curl", "-f", "-u", "${ELASTIC_USER}:${ELASTIC_PASSWORD}", "http://localhost:9200/_cluster/health"]
+        interval: 5s
+        timeout: 3s
+        retries: 3
+
+    logstash:
+      image: docker.elastic.co/logstash/logstash:8.17.0
+      container_name: logstash
+      env_file: .env
+      volumes:
+        - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+        - ./logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
+        - ./logstash/jvm.options:/usr/share/logstash/config/jvm.options
+      expose:
+        - "5044"
+        - "9600"
+      networks:
+        - transcendence
+      depends_on:
+        - elastic
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9600"] # Logstash API
+        interval: 5s
+        timeout: 3s
+        retries: 3
+
+    kibana:
+      image: docker.elastic.co/kibana/kibana:8.17.0
+      container_name: kibana
+      env_file: .env
+      volumes:  
+        - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      expose:
+        - "5601"
+      networks:
+        - transcendence
+      depends_on:
+        elastic:
+          condition: service_healthy
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5601/kibana/api/status"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+    filebeat:
+      image: docker.elastic.co/beats/filebeat:8.17.0
+      container_name: filebeat
+      user: root
+      command: ["filebeat", "-e", "--strict.perms=false"]
+      volumes:
+        - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+        - ./django/django_vol/django.log:/usr/share/filebeat/logs/django/django.log
+        - nginx_log:/usr/share/filebeat/logs/nginx/
+        - postgres_log:/usr/share/filebeat/logs/postgres/
+        - redis_log:/usr/share/filebeat/logs/redis/
+      depends_on:
+        - django
+        - nginx
+        - postgres
+        - redis
+        - elastic
+        - logstash
+      networks:
+        - transcendence
+
+    nginx-exporter:
+      image: nginx/nginx-prometheus-exporter:0.11.0
+      container_name: nginx-exporter
+      expose:
+        - "9113"
+      env_file: .env
+      command:
+        - -nginx.scrape-uri=${SCRAPE_URI}
+        - -nginx.ssl-verify=false
+      depends_on:
+        - nginx
+      networks:
+        - transcendence
+
+    postgres-exporter:
+      image: prometheuscommunity/postgres-exporter:v0.15.0
+      container_name: postgres-exporter
+      expose:
+        - "9187"
+      env_file:
+        - .env
+      networks:
+        - transcendence
+      depends_on:
+          - postgres
+
+    redis-exporter:
+      image: oliver006/redis_exporter:v1.55.0
+      container_name: redis-exporter
+      expose:
+          - "9121" 
+      environment:
+          - REDIS_ADDR=redis://redis:6379
+      networks:
+          - transcendence
+      depends_on:
+          - redis
+
+    prometheus:
+      image: prom/prometheus:v2.50.1
+      container_name: prometheus
+      volumes:
+        - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        - ./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+        - ./prometheus/prometheus_vol:/prometheus
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'  # 기본 설정 파일
+        - '--storage.tsdb.path=/prometheus'              # 데이터 저장 위치
+        - '--web.external-url=/prometheus'               # 외부 URL 경로
+        - '--web.route-prefix=/prometheus'               # URL 접두사
+        - '--storage.tsdb.retention.time=15d'               # 데이터 보존 기간
+        - '--storage.tsdb.retention.size=5GB'               # 최대 저장 용량
+      expose:
+        - "9090" 
+      networks:
+        - transcendence
+      healthcheck:
+        test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/prometheus/-/healthy"]
+        interval: 5s
+        timeout: 3s
+        retries: 3
+
+    grafana:
+      image: grafana/grafana:10.4.0
+      container_name: grafana
+      user: "472"
+      volumes:
+        - grafana_vol:/var/lib/grafana
+        - ./grafana/provisioning:/etc/grafana/provisioning
+        - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      env_file: .env
+      command:
+        - /bin/sh
+        - -c
+        - |
+          apk add --no-cache curl
+          /run.sh &
+          while ! curl -s http://localhost:3000/api/health; do
+            sleep 1
+          done
+          grafana-cli admin reset-admin-password "$GF_SECURITY_ADMIN_PASSWORD"
+          wait
+      expose: 
+        - "3000"
+      networks:
+        - transcendence
+      depends_on:
+        - prometheus
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"] # Grafana 헬스 체크
+        interval: 5s
+        timeout: 3s
+        retries: 3
         
-  nginx:
-    build: ./nginx
-    image: nginx
-    container_name: nginx
-    env_file: .env
-    networks:
-      - transcendence
-    volumes:
-        - nginx_conf:/etc/nginx/conf.d
-        - static_vol:/home/staticfiles
-    ports:
-      - "8080:8080"
+    alertmanager:
+      image: prom/alertmanager:v0.26.0
+      container_name: alertmanager
+      env_file:
+        - .env
+      volumes:
+        - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      command:
+        - '--config.file=/etc/alertmanager/alertmanager.yml'
+      expose:
+        - "9093"
+      networks:
+        - transcendence
 
-  postgres:
-    image: postgres:17-alpine3.20
-    container_name: postgres
-    env_file: .env
-    networks:
-      - transcendence
-    volumes:
-      - postgres_vol:/var/lib/postgresql/data
-      - root_vol:/home
-    ports:
-     - "5432:5432"
-    # healthcheck:
-    #   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-    #   interval: 1s
-    #   timeout: 1s
-    #   retries: 5
-    #   start_period: 1s
+  networks:
+    transcendence:
+      name: tsen
+      driver: bridge
 
-  redis:
-    image: redis:7.4.1-alpine3.20
-    container_name: redis
-    networks:
-      - transcendence
-    ports:
-      - "6380:6379"
+  volumes:
+    django_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/django/django_vol
 
-networks:
-  transcendence:
-    name: tsen
-    driver: bridge
+    nginx_conf:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/nginx/nginx_conf
+
+    static_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/django/django_vol/staticfiles
+
+    postgres_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/postgre/postgres_vol
+
+    root_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}
     
-volumes:
-  django_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/django/django_vol
+    react_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/react/react_vol
+    
+    build_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/react/react_vol/my-react-app/build
 
-  nginx_conf:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/nginx/nginx_conf
+    elastic_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/elastic/elastic_vol
 
-  static_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/django/django_vol/staticfiles
+    prometheus_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/prometheus/prometheus_vol
 
-  postgres_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/postgre/postgres_vol
+    grafana_vol:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/grafana/grafana_vol
+    nginx_log:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/nginx/nginx_log
 
-  root_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}
+    postgres_log:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/postgre/postgres_log
+
+    redis_log:
+      driver: local
+      driver_opts:
+        type: none
+        o: bind
+        device: ${PWD}/redis/redis_log
+

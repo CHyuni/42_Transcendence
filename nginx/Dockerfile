@@ -1,9 +1,9 @@
 FROM nginx:1.26.2-alpine3.20
 
-RUN apk update && apk add dumb-init
+RUN apk add --no-cache openssl apache2-utils
 
-EXPOSE 8080
+COPY default.conf.template /etc/nginx/default.conf.template
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["nginx", "-g", "daemon off;"]
-#CMD ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

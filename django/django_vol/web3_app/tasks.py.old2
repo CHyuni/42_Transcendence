@@ -1,0 +1,107 @@
+from django.conf import settings
+from .utils import Web3Helper
+import logging
+from celery import shared_task
+from django_redis import get_redis_connection
+from redis.exceptions import LockError, LockNotOwnedError
+import time
+from web3.exceptions import TransactionNotFound
+
+logger = logging.getLogger(__name__)
+web3_helper = Web3Helper()
+
+@shared_task(bind=True)
+def process_transaction_task(self, data):
+    redis_client = get_redis_connection("default")
+    lock_key = "blockchain_nonce_lock"
+    lock = redis_client.lock(
+        lock_key,
+        timeout=30,
+        blocking_timeout=60
+    )
+    
+    try:
+        have_lock = lock.acquire()
+        if not have_lock:
+            logger.warning("Could not acquire lock. Retrying task...")
+            raise self.retry(countdown=5, max_retries=10)
+
+        try:
+            current_nonce = redis_client.get('current_nonce')
+            if current_nonce is None:
+                current_nonce = web3_helper.w3.eth.get_transaction_count(web3_helper.admin_account.address)
+                redis_client.set('current_nonce', current_nonce)
+                logger.info(f"Initialized current_nonce to {current_nonce}")
+            else:
+                current_nonce = int(current_nonce)
+
+            gas_price = web3_helper.w3.eth.gas_price
+            
+            gas_estimate = web3_helper.contract.functions.createGame(
+                int(data['player1']),
+                int(data['player2']),
+                int(data['p1Score']),
+                int(data['p2Score']),
+                int(data['p1BeforeRating']),
+                int(data['p2BeforeRating']),
+                int(data['mode']),
+                int(data['gameType'])
+            ).estimate_gas({'from': web3_helper.admin_account.address})
+            
+            transaction = web3_helper.contract.functions.createGame(
+                int(data['player1']),
+                int(data['player2']),
+                int(data['p1Score']),
+                int(data['p2Score']),
+                int(data['p1BeforeRating']),
+                int(data['p2BeforeRating']),
+                int(data['mode']),
+                int(data['gameType'])
+            ).build_transaction({
+                'gas': int(gas_estimate * 1.2),
+                'gasPrice': int(gas_price),
+                'nonce': current_nonce,
+                'from': web3_helper.admin_account.address
+            })
+
+            signed_txn = web3_helper.w3.eth.account.sign_transaction(
+                transaction, 
+                private_key=settings.ADMIN_PRIVATE_KEY
+            )
+            
+            # rawTransaction 대신 raw_transaction 사용
+            tx_hash = web3_helper.w3.eth.send_raw_transaction(signed_txn.raw_transaction)
+            
+            redis_client.set('current_nonce', current_nonce + 1)
+            
+            lock.release()
+            
+            receipt = web3_helper.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
+            
+            if receipt['status'] == 0:
+                raise Exception("Transaction failed")
+                
+            return {
+                "status": "success", 
+                "transaction_hash": tx_hash.hex(),
+                "block_number": receipt['blockNumber']
+            }
+            
+        except Exception as e:
+            if isinstance(e, TransactionNotFound):
+                actual_nonce = web3_helper.w3.eth.get_transaction_count(web3_helper.admin_account.address)
+                redis_client.set('current_nonce', actual_nonce)
+            
+            logger.error(f"Error during create_game: {e}", exc_info=True)
+            raise self.retry(exc=e, countdown=10, max_retries=5)
+            
+    except (LockError, LockNotOwnedError) as e:
+        logger.error(f"Lock error: {e}", exc_info=True)
+        raise self.retry(exc=e, countdown=5, max_retries=10)
+        
+    finally:
+        try:
+            if 'lock' in locals() and lock.owned():
+                lock.release()
+        except (LockError, LockNotOwnedError):
+            pass

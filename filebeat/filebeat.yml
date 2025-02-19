@@ -1,0 +1,24 @@
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/django/*.log
+
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/nginx/*.log
+    
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/postgres/*.log
+
+- type: log
+  enabled: true
+  paths:
+    - /usr/share/filebeat/logs/redis/*.log
+
+output.logstash:
+  hosts: ["logstash:5044"]

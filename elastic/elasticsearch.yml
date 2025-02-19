@@ -1,0 +1,13 @@
+cluster.name: my-elk-cluster  # 클러스터 이름 설정
+node.name: elk-node-1        # 노드 이름 설정 (각 노드마다 다르게 설정)
+network.host: 0.0.0.0         # 모든 네트워크 인터페이스에서 연결 수락
+http.port: 9200              # Elasticsearch HTTP API 포트
+transport.port: 9300         # Elasticsearch 노드 간 통신 포트
+path.data: /usr/share/elasticsearch/data  # 데이터 저장 경로
+path.logs: /usr/share/elasticsearch/logs  # 로그 저장 경로
+path.repo: ["/mnt/snapshots"]
+discovery.seed_hosts: ["elasticsearch"]
+xpack.security.enabled: true # 보안 기능 비활성화
+discovery.type: single-node
+
+

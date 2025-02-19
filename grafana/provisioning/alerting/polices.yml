@@ -1,0 +1,7 @@
+apiVersion: 1
+policies:
+  - orgId: 1
+    receiver: "Gmail-Alert"  # 어디로 보낼지
+    group_by: ['alertname']   # 어떻게 그룹화할지
+    group_wait: 30s          # 첫 알림 대기 시간
+    group_interval: 5m       # 그룹 내 알림 간격

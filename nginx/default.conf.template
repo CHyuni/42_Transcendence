@@ -1,0 +1,105 @@
+server {
+    listen 8081 ssl;
+    server_name ${SERVER_IP};
+
+    access_log /var/log/nginx/nginx_8081.access.log;
+    error_log /var/log/nginx/nginx_8081.error.log debug;
+
+    ssl_certificate /etc/nginx/ssl/certificate.crt;
+    ssl_certificate_key /etc/nginx/ssl/private.key;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+    root /home/build;
+
+    client_max_body_size 100M;
+    location = /game {
+        try_files $uri /index.html;  
+    }
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://django:8000;  # Django 서버로 요청 전달
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    
+    location /nginx {
+        proxy_pass http://django:8000/nginx;  # Django 서버로 요청 전달
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /nginx/static/ {
+        alias /home/staticfiles/;
+        autoindex on;
+    }
+
+    location /ws/ {
+        proxy_pass http://django:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+    }
+
+    location /elastic {
+        proxy_pass http://elastic:9200/;  
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /logstash {
+        proxy_pass http://logstash:9600/;  
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /kibana {
+        proxy_pass http://kibana:5601;  
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /prometheus/ {
+        proxy_pass          http://prometheus:9090/prometheus/;
+        proxy_set_header    Host $host;
+        proxy_set_header    X-Real-IP $remote_addr;
+    }
+
+    location /grafana {
+        proxy_pass http://grafana:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /metrics {
+        stub_status on;
+        access_log off;
+    
+        auth_basic "Metrics Authentication";
+        auth_basic_user_file /etc/nginx/.htpasswd; 
+    }
+
+}
+
+server {
+    listen 8080;
+    server_name ${SERVER_IP};
+    access_log /var/log/nginx/nginx_8080.access.log;
+    error_log /var/log/nginx/nginx_8080.error.log debug;
+
+
+
+    # 다른 모든 요청은 리다이렉트
+    location / {
+        return 302 https://$server_name:8081$request_uri;
+    }
+}
+

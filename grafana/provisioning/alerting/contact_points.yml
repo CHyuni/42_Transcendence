@@ -1,0 +1,9 @@
+apiVersion: 1
+contactPoints:
+  - name: "Gmail-Alert"
+    receivers:
+      - uid: "gmail-alert"
+        type: "email"
+        settings:
+          addresses: "dotoryman@gmail.com"  # 수신자 이메일
+          singleEmail: true     

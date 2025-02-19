@@ -1,0 +1,171 @@
+/* TournamentDisplay.css에 추가 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px 10px;
+    z-index: 1001;
+  }
+  
+  .close-button:hover {
+    color: #000;
+  }
+
+.tournament-container {
+    padding: 2rem;
+    overflow-x: auto;
+  }
+  
+  .title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #1a202c;
+    margin-bottom: 2rem;
+  }
+  
+  
+  .round-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+  }
+  
+  .round-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+  }
+  
+  .matches-column {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  
+  .match-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .match-card {
+    width: 12rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+  
+  .player-info {
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .player-info:last-child {
+    border-bottom: none;
+  }
+  
+  .player-name {
+    font-family: monospace;
+    font-weight: 500;
+  }
+  
+  .score {
+    font-weight: 500;
+  }
+  
+  .winner {
+    background-color: #c6f6d5;
+  }
+  
+  /* Scrollbar Styling */
+  .tournament-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .tournament-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .tournament-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .tournament-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+
+.popup-content {
+background: white;
+padding: 20px;
+border-radius: 8px;
+position: relative;
+width: 90%;
+max-width: 1200px;
+max-height: 90vh;
+overflow-y: auto;
+margin-top: 40px; /* 상단 여백 추가 */
+}
+
+.tournament-bracket {
+display: flex;
+flex-direction: row; /* 가로 방향으로 변경 */
+justify-content: flex-start; /* 왼쪽부터 시작하도록 변경 */
+gap: 4rem;
+padding-bottom: 2rem;
+overflow-x: auto; /* 가로 스크롤 추가 */
+}
+
+.round-column {
+display: flex;
+flex-direction: column;
+min-width: 200px;
+flex: 0 0 auto; /* 크기 고정 */
+}
+
+/* 추가: 가로 스크롤바 스타일링 */
+.tournament-bracket::-webkit-scrollbar {
+height: 8px;
+}
+
+.tournament-bracket::-webkit-scrollbar-track {
+background: #f1f1f1;
+border-radius: 4px;
+}
+
+.tournament-bracket::-webkit-scrollbar-thumb {
+background: #888;
+border-radius: 4px;
+}
+
+.tournament-bracket::-webkit-scrollbar-thumb:hover {
+background: #555;
+}

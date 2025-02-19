@@ -1,0 +1,77 @@
+.chat-container {
+    position: fixed; /* absolute에서 fixed로 변경 */
+    left: 385px;
+    bottom: 0px;   /* 하단에서 20px 떨어진 위치 */
+    height: 400px;  /* 기본 높이 */
+    min-height: 300px;
+    max-height: 800px;
+    width: 300px;
+    min-width: 500px;
+    max-width: 1000px;
+    resize: both;
+    overflow: auto;
+    background-color: white; /* 배경색 추가 */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 그림자 효과 추가 */
+    z-index: 1000; /* 다른 요소들 위에 표시되도록 */
+}
+
+.chat-container {
+    position: fixed;
+    /* left와 bottom 제거 (이제 style prop으로 제어) */
+    height: 400px;
+    min-height: 300px;
+    max-height: 1080px;
+    width: 300px;
+    min-width: 250px;
+    max-width: 1920px;
+    resize: both;
+    overflow: auto;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.chat-header {
+    user-select: none; /* 드래그 중 텍스트 선택 방지 */
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+/* Friends 컴포넌트의 스크롤이 ChatBox와 독립적으로 동작하도록 */
+#sidebar-users {
+    position: relative;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.list-group {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* 크기 조절 핸들 스타일링 */
+.chat-container::-webkit-resizer {
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent #ccc #ccc transparent;
+    background-color: white;
+}
+
+/* 나머지 스타일은 유지 */
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 60px;
+}
+
+.input-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    width: 100%;
+    padding: 10px;
+    background-color: white;
+}
