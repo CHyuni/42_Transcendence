@@ -362,14 +362,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.game_state['user2']['score'] += 1
 			self.resetBall(direction=1)
 			self.redis_client.set(f"game_state_{self.room_group_name}", json.dumps(self.game_state))
-			if self.game_state['user2']['score'] == 11:
+			if self.game_state['user2']['score'] == 3:
 				asyncio.create_task(self.send_game_end('user2'))
 				PongConsumer.room_name[self.room_group_name] = 'end'
 		elif( self.game_state['ball']['x'] + self.game_state['ball']['radius'] > self.game_state['canvas_width']):
 			self.game_state['user1']['score'] += 1
 			self.resetBall(direction=-1)
 			self.redis_client.set(f"game_state_{self.room_group_name}", json.dumps(self.game_state))
-			if self.game_state['user1']['score'] == 11:
+			if self.game_state['user1']['score'] == 3:
 				asyncio.create_task(self.send_game_end('user1'))
 				PongConsumer.room_name[self.room_group_name] = 'end'
 

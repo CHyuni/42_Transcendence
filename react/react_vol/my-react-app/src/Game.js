@@ -76,7 +76,10 @@ export default function Game({ myProfile }) {
                     }
                     let gametype = userData.match === true ? 'match' : 'custom';
                     let block_type = gametype === 'match' ? 1 : 2;
+                    console.log(mode);
+                    console.log(userData.left_win, userData.right_win)
                     if (mode === 'Tournament Mod') {
+                        console.log("???");
                         let myidx;
                         for (let i = 0; i < 4; ++i) {
                             if (userData[`user${i}`] === myProfile.userid) {
@@ -94,9 +97,9 @@ export default function Game({ myProfile }) {
                             const response_p2 = await ApiRequests(`/api/user/${Number(window.player2)}/profile/`);
                             const p1_rating = response_p1.rating;
                             const p2_rating = response_p2.rating;
-                            console.log('user1', user1_score, 'user2', user2_score, 'type', block_type);
-                            console.log('p1_rating:', p1_rating, 'p2_rating:', p2_rating);
+                            console.log(userData.left_win, userData.right_win)
                             if (userData.left_win && userData.right_win) {
+                                console.log("EWEWEWE");
                                 const response = await ApiRequests('/api/match_stat/', {
                                     method: 'POST',
                                     body: JSON.stringify({
@@ -113,18 +116,17 @@ export default function Game({ myProfile }) {
                                 })
                                 if (response.message != 'success')
                                     console.error('matchstath update error');
-                                const response_block = await ApiRequests('/api/tournaments/create/', {
-                                    method: 'POST',
-                                    body: JSON.stringify({
-                                        'player1': Number(window.player1),
-                                        'player2': Number(window.player2),
-                                        'p1Score': user1_score,
-                                        'p2Score': user2_score,
-                                        'mode': 2,
-                                        'gameType': block_type
-                                    })
-                                })
-                                console.log(response_block.status);
+                                // const response_block = await ApiRequests('/api/tournaments/create/', {
+                                //     method: 'POST',
+                                //     body: JSON.stringify({
+                                //         'player1': Number(window.player1),
+                                //         'player2': Number(window.player2),
+                                //         'p1Score': user1_score,
+                                //         'p2Score': user2_score,
+                                //         'mode': 2,
+                                //         'gameType': block_type
+                                //     })
+                                // })
                                 alert('우승 하셨습니다!')
                                 dispatch(tournamentUpdate(2));
                                 dispatch(tourCustom(1));
@@ -148,18 +150,18 @@ export default function Game({ myProfile }) {
                             })
                             if (response.message != 'success')
                                 console.error('matchstath update error');
-                            const response_block = await ApiRequests('/api/tournaments/create/', {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    'player1': Number(window.player1),
-                                    'player2': Number(window.player2),
-                                    'p1Score': user1_score,
-                                    'p2Score': user2_score,
-                                    'mode': 1,
-                                    'gameType': block_type
-                                })
-                            })
-                            console.log(response_block.status);
+                            // const response_block = await ApiRequests('/api/tournaments/create/', {
+                            //     method: 'POST',
+                            //     body: JSON.stringify({
+                            //         'player1': Number(window.player1),
+                            //         'player2': Number(window.player2),
+                            //         'p1Score': user1_score,
+                            //         'p2Score': user2_score,
+                            //         'mode': 1,
+                            //         'gameType': block_type
+                            //     })
+                            // })
+                            // console.log(response_block.status);
                             if (myidx < 2) {
                                 let right_ids = [];
                                 for (let i = 2; i < 4; ++i) {

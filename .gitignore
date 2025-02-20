@@ -1,7 +1,6 @@
 myenv
 postgre/
 redis/redis_log/dump.rdb
-.env
 nginx/certificate.crt
 nginx/private.key
 grafana/grafana_vol/png/

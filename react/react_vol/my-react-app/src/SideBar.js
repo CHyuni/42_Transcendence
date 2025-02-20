@@ -90,7 +90,8 @@ export default function SideBar({ refresh, selfRefresh, selfRefreshbtn, gameStar
     
     // Custom, Tournament 모드 변경
     const handleMode = async () => {
-        if (myProfile !== 'available') {
+        const response = await ApiRequests(`/api/user/get-status`);
+        if (response.status !== 'available') {
             await showToastMessage('매칭 및 게임 중에는 모드 변경이 불가능 합니다.', 2000, 'notice');
             return;
         }
