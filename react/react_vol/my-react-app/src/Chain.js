@@ -2,7 +2,7 @@ import React from "react";
 import "./stats.css"
 import StatCard from "./StatCard";
 
-export default function Chain({ user }) {
+export default function Chain({ user, myProfile }) {
     return (
         <div class="stats-outer-container">
             <div class="stats-header-container">
@@ -31,7 +31,7 @@ export default function Chain({ user }) {
                         </div>
                     </div>
                 </div>
-                <StatCard user={user}/>
+                <StatCard user={user} myProfile={myProfile}/>
             </div>
         </div>
     )

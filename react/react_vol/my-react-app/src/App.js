@@ -97,13 +97,11 @@ window.csrfToken = null;
 
 function useAuth() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [myProfile, setMyProfile] = useState(null);
 
   const checkLoginStatus = useCallback(async () => {
     try {
       const data = await ApiRequests('/api/user/me/profile', {login_check: true});
       setIsLoggedIn(true);
-      setMyProfile(data);
       console.log('Logged in:', data.username);
     } catch (error) {
       if (!error.message.includes("401")) {
@@ -117,11 +115,12 @@ function useAuth() {
     checkLoginStatus();
   }, [checkLoginStatus]);
 
-  return { isLoggedIn, myProfile };
+  return { isLoggedIn };
 }
 
 function App() {
-  const { isLoggedIn, myProfile } = useAuth();
+  const { isLoggedIn } = useAuth();
+  const [myProfile, setMyProfile] = useState(null);
   const [gameStartCount, setGameStartCount] = useState(0);
   const [gameRoomId, setGameRoomId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -149,6 +148,17 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      const fetchProfile = async () => {
+        const response = await ApiRequests('/api/user/me/profile');
+        setMyProfile(response);
+      }
+  
+      fetchProfile();
+    }
+  }, [refreshCount, selfRefreshCount]);
+  
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <NotificationProvider>

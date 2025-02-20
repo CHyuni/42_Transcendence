@@ -72,7 +72,8 @@ export default function SideBar({ refresh, selfRefresh, selfRefreshbtn, gameStar
     // 페이지가 리렌더링 될때, 매칭이 완료된 playing 상태나 게임 중 일 경우 무시 이외에는 상태: 대기중, 매칭 중이였다면 해당 매칭 취소 처리
     useEffect(() => {
         const fetchData = async () => {
-            if (myProfile.status === 'playing') return;
+            const response = await ApiRequests(`/api/user/get-status`);
+            if (response.status === 'playing') return;
             const initstate = async () => {
                 const response_status = await ApiRequests('/api/status/me/state-update/', {
                     method: 'PATCH', body: JSON.stringify({ status: 'available' }), headers: { 'Content-Type': 'application/json' }});

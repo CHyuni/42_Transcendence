@@ -31,7 +31,7 @@ export default function Stats({myProfile, user}) {
                         </div>
                     </div>
                 </div>
-                <StatCard user={user}/>
+                <StatCard user={user} myProfile={myProfile}/>
             </div>
         </div>
     )

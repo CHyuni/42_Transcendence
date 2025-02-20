@@ -3,8 +3,7 @@ import "./stats.css"
 import ApiRequests from "./ApiRequests";
 import { useSelector } from 'react-redux';
 
-export default function StatCard({user}) {
-    const userData = useSelector(state => state.userReducer.userData);
+export default function StatCard({user, myProfile}) {
     const [matches, setMatches] = useState([]);
     const [blockchainMatches, setBlockchainMatches] = useState([]);
 
@@ -59,7 +58,7 @@ export default function StatCard({user}) {
         else {
             const fetchMatches = async () => {
                 try {
-                    const response = await ApiRequests(`/api/match_stat/?id=${userData.userid}&mode=${userData.mode}`, {
+                    const response = await ApiRequests(`/api/match_stat/?id=${myProfile.userid}&mode=${myProfile.mode}`, {
                         method: 'GET'
                     });
                     setMatches(response);
@@ -69,11 +68,11 @@ export default function StatCard({user}) {
             };
             fetchMatches();
         }
-    }, [userData]);
+    }, [myProfile]);
 
     const getPlayerInfo = (match) => {
         // 내가 player1인 경우
-        if (match.player1 === userData.userid) {
+        if (match.player1 === myProfile.userid) {
             return {
                 me: {
                     username: match.player1_username,
@@ -220,7 +219,7 @@ export default function StatCard({user}) {
                         </div>
                         <div className="stats-result-container">
                             <span className="stats-result">
-                                {match.winner === userData.userid ? "WIN" : "LOSE"}
+                                {match.winner === myProfile.userid ? "WIN" : "LOSE"}
                             </span>
                         </div>
                     </div>

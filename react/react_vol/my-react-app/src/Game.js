@@ -76,10 +76,7 @@ export default function Game({ myProfile }) {
                     }
                     let gametype = userData.match === true ? 'match' : 'custom';
                     let block_type = gametype === 'match' ? 1 : 2;
-                    console.log(mode);
-                    console.log(userData.left_win, userData.right_win)
                     if (mode === 'Tournament Mod') {
-                        console.log("???");
                         let myidx;
                         for (let i = 0; i < 4; ++i) {
                             if (userData[`user${i}`] === myProfile.userid) {
@@ -97,9 +94,7 @@ export default function Game({ myProfile }) {
                             const response_p2 = await ApiRequests(`/api/user/${Number(window.player2)}/profile/`);
                             const p1_rating = response_p1.rating;
                             const p2_rating = response_p2.rating;
-                            console.log(userData.left_win, userData.right_win)
                             if (userData.left_win && userData.right_win) {
-                                console.log("EWEWEWE");
                                 const response = await ApiRequests('/api/match_stat/', {
                                     method: 'POST',
                                     body: JSON.stringify({
