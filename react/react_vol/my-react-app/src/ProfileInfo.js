@@ -41,7 +41,7 @@ const ProfileInfo = ({ meProfile, userData, handleFriendRequest, handleFriendRem
                 </div>
                 {userData.is_online ? (
                     <>
-                        <br />
+                        <p></p>
                         <div className="profile-image-login">🟢 online</div>
                     </>
                 ) : (
