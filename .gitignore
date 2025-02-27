@@ -8,3 +8,4 @@ grafana/grafana_vol/csv/
 grafana/grafana_vol/pdf/
 *.log
 nginx/nginx_log/*.log
+.env

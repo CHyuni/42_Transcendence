@@ -24,8 +24,8 @@ Transcendence는 Django, REST API, WebSocket을 활용하여 개발된 실시간
 1.  **저장소 클론:** `git clone https://github.com/CHyuni/42_Transcendence`
 2.  **프로젝트 디렉토리 이동:** `cd 42_Transcendence`
 3.  **.env 파일 설정:**
-    *   저장소에 포함된 `.env` 파일은 **예시**입니다.
-    *   `.env` 파일을 복사하여 사용하거나, 새로운 `.env` 파일을 생성하십시오.
+    *   저장소에 포함된 `.env.example` 파일은 **예시**입니다.
+    *   `.env.example` 파일을 복사하여 사용하거나, 새로운 `.env` 파일을 생성하십시오.
     *   각 설정 항목 (데이터베이스 정보, API 키 등)에 **실제 값**을 입력하십시오.
 4.  **빌드 및 실행:** `make`
 5.  **웹 브라우저 접속:** `http://localhost:8080`
