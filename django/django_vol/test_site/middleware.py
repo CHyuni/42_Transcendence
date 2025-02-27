@@ -10,7 +10,7 @@ class JWTAuthMiddleware:
         
     def __call__(self, request):
         # 인증이 필요없는 경로는 바로 통과
-        exempt_paths = ['/api/oauth/callback', '/api/totp/verify-2fa/', '/api/testlogin/', '/nginx/'
+        exempt_paths = ['/api/oauth/callback', '/api/totp/verify-2fa/', '/api/oauth/google-callback', '/nginx/'
         ,'/tournaments/', '/metrics', '/health/']
         if any(request.path.startswith(path) for path in exempt_paths):
             return self.get_response(request)

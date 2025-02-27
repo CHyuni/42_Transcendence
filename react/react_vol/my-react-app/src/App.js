@@ -15,46 +15,69 @@ import { NotificationProvider } from "./NotificationContext";
 function Main() { 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputText, setInputText] = useState('');
+  const [googleSignInInitialized, setGoogleSignInInitialized] = useState(false);
 
+  const handleGoogleSignInClick = () => {
+    // Google OAuth 클라이언트 ID
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    
+    const redirectUri = 'your_google_redirect_url';
+    
+    // 필요한 스코프 설정 (이메일, 프로필 정보)
+    const scope = encodeURIComponent('email profile');
+    
+    // 로그인 타입: 선택 창 표시
+    const prompt = 'select_account';
+    
+    // 응답 타입: 인증 코드
+    const responseType = 'code';
+    
+    // 인증 URL 구성
+    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&prompt=${prompt}&response_type=${responseType}`;
+    
+    // Google 로그인 페이지로 이동
+    window.location.href = authUrl;
+  };
+  
   // 이하 3 함수 테스트 로그인을 위한 것
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-    setInputText('');
-  };
+  // const handleOpenModal = () => {
+  //   setIsModalOpen(true);
+  //   setInputText('');
+  // };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  // const handleCloseModal = () => {
+  //   setIsModalOpen(false);
+  // };
 
-  const handleInputChange = (event) => {
-    setInputText(event.target.value);
-  };
+  // const handleInputChange = (event) => {
+  //   setInputText(event.target.value);
+  // };
 
-  // 현재 42 Oauth로만 로그인 가능, 테스팅을 위한 데이터베이스의 유저를 이용 해 로그인
-  const handleTestLoginSubmit = async () => {
-    // API 호출 로직
-    try {
-        const response = await fetch('/api/testlogin/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ temp: inputText }),
-        });
+  // // 현재 42 Oauth로만 로그인 가능, 테스팅을 위한 데이터베이스의 유저를 이용 해 로그인
+  // const handleTestLoginSubmit = async () => {
+  //   // API 호출 로직
+  //   try {
+  //       const response = await fetch('/api/testlogin/', {
+  //           method: 'POST',
+  //           headers: {
+  //               'Content-Type': 'application/json',
+  //           },
+  //           body: JSON.stringify({ temp: inputText }),
+  //       });
 
-        if (response.ok) {
-            const data = await response.json();
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            }
-        } else {
-            console.error('API 호출 실패:', response.status, response.statusText);
-        }
-    } catch (error) {
-        console.error('API 호출 중 오류:', error);
-    }
-    handleCloseModal();
-  };
+  //       if (response.ok) {
+  //           const data = await response.json();
+  //           if (data.redirect_url) {
+  //               window.location.href = data.redirect_url;
+  //           }
+  //       } else {
+  //           console.error('API 호출 실패:', response.status, response.statusText);
+  //       }
+  //   } catch (error) {
+  //       console.error('API 호출 중 오류:', error);
+  //   }
+  //   handleCloseModal();
+  // };
 
   function login() {
     const clientId = process.env.REACT_APP_CLIENT_ID;
@@ -74,11 +97,11 @@ function Main() {
             Welcome <br></br> 42 transcendence
         </div>
         <div className="main-auth-container">
-          <button className="button" onClick={handleOpenModal}><img id="google-icon" src="/google-icon.png"/>continue with google</button>
+          <button className="button" onClick={handleGoogleSignInClick}><img id="google-icon" src="/google-icon.png"/>continue with google</button>
           <button className="button" id="button-42" onClick={login}><img id="four-icon" src="/42-icon.png" />continue with intra</button>
         </div>
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>id 입력</h3>
@@ -89,7 +112,7 @@ function Main() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

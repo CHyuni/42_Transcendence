@@ -29,6 +29,7 @@ from django.db.models import Q
 from django.db import transaction
 import base64
 from django.utils import timezone
+from google.oauth2 import id_token
 
 
 logger = logging.getLogger(__name__)
@@ -147,67 +148,85 @@ class UserViewSet(viewsets.ModelViewSet):
 				return Response({'error': str(e)}, status=400)
 		
 		return Response({'error': 'No image file provided'}, status=400)
-		
+
+def process_oauth_flow(request, get_tokens_func, get_user_info_func, create_or_update_user_func):
+	code = request.GET.get('code')
+	if not code:
+		logger.info("--------------------------------------------------1")
+		return redirect('')
+
+	logger.info(code)
+	tokens = get_tokens_func(code)
+	if not tokens:
+		logger.info("--------------------------------------------------2")
+		return redirect('')
+
+	access_token = tokens.get('access_token')
+	if not access_token:
+		logger.info("--------------------------------------------------3")
+		return redirect('')
+
+	user_info = get_user_info_func(access_token)
+	if not user_info:
+		logger.info("--------------------------------------------------4")
+		return redirect('')
+
+	user = create_or_update_user_func(user_info)
+	
+	# 로그인 처리 부분
+	if not hasattr(user, 'totp') or not user.totp.totp_enabled:
+		access_token = jwt.encode(
+			{
+				'user_id': user.id,
+				'exp': datetime.utcnow() + timedelta(hours=1),
+			},
+			settings.SECRET_KEY,
+			algorithm='HS256',
+		)
+		user.profile.mode = 'Casual Mod'
+		user.profile.save()
+
+		response = redirect('/sidebar')
+		response.set_cookie(
+			'access_token', 
+			access_token,
+			httponly=True,       
+			secure=True,
+			samesite='strict',
+			max_age=3600 
+		)
+		csrf_token = get_token(request)
+		response.set_cookie(
+			'csrftoken', 
+			csrf_token,
+			secure=True,
+			samesite='strict',
+			max_age=3600
+		)
+		return response
+	else:
+		return redirect(f'/verify-2fa?user_id={user.id}')
 
 class OAuthViewSet(viewsets.ViewSet):
 	permission_classes = [IsAuthenticated]
 
+	@action(detail=False, methods=['get'], url_path='google-callback', permission_classes=[AllowAny])
+	def google_oauth_callback(self, request):
+		return process_oauth_flow(
+			request,
+			get_google_oauth_tokens,  
+			get_google_user_info,     
+			create_or_update_google_user  
+		)
+
 	@action(detail=False, methods=['get'], url_path='callback', permission_classes=[AllowAny])
 	def oauth_callback(self, request):
-		code = request.GET.get('code')
-
-		if not code:
-			redirect('')
-	
-		tokens = get_oauth_tokens(code)
-		
-		if not tokens:
-			redirect('')
-
-		access_token = tokens.get('access_token')
-		if not access_token:
-			redirect('')
-
-
-		user_info = get_user_info(access_token)
-		if not user_info:
-			redirect('')
-
-
-		user = create_or_update_user(user_info)
-
-		if not hasattr(user, 'totp') or not user.totp.totp_enabled:
-			access_token = jwt.encode(
-				{
-					'user_id': user.id,
-					'exp': datetime.utcnow() + timedelta(hours=1),
-				},
-				settings.SECRET_KEY,
-				algorithm='HS256',
-			)
-			user.profile.mode = 'Casual Mod'
-			user.profile.save()
-
-			response = redirect('/sidebar')
-			response.set_cookie(
-				'access_token', 
-				access_token,
-				httponly=True,       
-				secure=True,
-				samesite='strict',
-				max_age=3600 
-			)
-			csrf_token = get_token(request)
-			response.set_cookie(
-				'csrftoken', 
-				csrf_token,
-				secure=True,
-				samesite='strict',
-				max_age=3600
-			)
-			return response
-		else:
-			return redirect(f'/verify-2fa?user_id={user.id}')
+		return process_oauth_flow(
+			request,
+			get_oauth_tokens,  
+			get_user_info,     
+			create_or_update_user  
+		)
 
 	@action(detail=False, methods=['get'], url_path='qrcode', permission_classes=[IsAuthenticatedOrSpecialHeader])
 	def qr_generate(self, request):

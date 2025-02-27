@@ -6,6 +6,5 @@ nginx/private.key
 grafana/grafana_vol/png/
 grafana/grafana_vol/csv/
 grafana/grafana_vol/pdf/
-.env
 *.log
 nginx/nginx_log/*.log

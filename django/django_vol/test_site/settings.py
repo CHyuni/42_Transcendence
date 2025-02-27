@@ -28,6 +28,9 @@ ENCRYPTION_KEY = env('DJANGO_ENCRYPTION_KEY')
 CONTRACT_ADDRESS = env('DJANGO_CONTRACT_ADDRESS')
 WEB3_PROVIDER_URL = env('DJANGO_WEB3_PROVIDER_URL')
 ADMIN_PRIVATE_KEY = env('DJANGO_ADMIN_PRIVATE_KEY') 
+GOOGLE_CLIENT_ID = env('REACT_APP_GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = env('REACT_APP_GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URL = env('REACT_APP_GOOGLE_REDIRECT_URL')
 
 SERVER_URL = f'http://{env.str("SERVER_IP")}'
 SERVER_URL_WITH_DJANGO_PORT = f'{SERVER_URL}:8080'
@@ -35,10 +38,11 @@ REDIRECT_URL = env('REDIRECT_URL')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [env.str("SERVER_IP"),     'localhost',
-    '127.0.0.1',
-    
-        'django',  # 추가
+ALLOWED_HOSTS = [env.str("SERVER_IP"),
+    'localhost',
+    env.str("SERVER_IP") + '.nip.io',
+    '127.0.0.1',    
+    'django',  # 추가
     'django:8000',]  # 추가
 
 CSRF_TRUSTED_ORIGINS = [
